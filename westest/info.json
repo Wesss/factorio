@@ -1,0 +1,9 @@
+{
+  "name": "westest",
+  "version": "0.1.0",
+  "title": "Wes Test",
+  "author": "Wesssss",
+  "factorio_version": "2.0",
+  "dependencies": ["base >= 2.0"],
+  "description": "This is my first mod!"
+}
