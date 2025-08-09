@@ -1,5 +1,6 @@
--- disable research by making them unable to progress or have any inputs
+-- disable research
 for key, lab in pairs(data.raw["lab"]) do
     lab.researching_speed = 0
-    lab.inputs = {}
+    -- this causes "there is no lab that will accept all of the science packs this technology requires"
+    -- lab.inputs = {}
 end

@@ -1,0 +1,135 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.2.15
+Date: 13. 05. 2024
+  Changes:
+    -  Made fix to algorithm for when it wasn't multiplying the fish value of an ingredient by its amount in the recipe
+    -  merged all output ingredients into one output result to prevent screen clutter
+  Bugfixes:
+    -  fixed bug that added an extra instance of output ingredients for unassemble recipes
+    -  fixed descriptions again
+---------------------------------------------------------------------------------------------------
+Version: 0.2.14
+Date: 12. 05. 2024
+  Bugfixes:
+    -  fixed break to locale
+---------------------------------------------------------------------------------------------------
+Version: 0.2.13
+Date: 11. 05. 2024
+  Changes:
+    -  Adds description to items that lets you see their transmutation multiplier. Handy for knowing which items are better to use in the transmutation devices
+---------------------------------------------------------------------------------------------------
+Version: 0.2.11
+Date: 11. 05. 2024
+  Changes:
+    -  Algorithm for determining fish output from a given item now is done according to the item's fish value * the cube root of the complexity value. This means that a value of 0 or 1 complexity will produce as much fish as the item is worth, 8 will produce 2x as much, 27 complexity will produce 3x as much as its worth and so on. I plan to make these values visible to the player in the future with an option to turn them off
+    -  tldr; items with longer crafting chains or more items required will produce a higher multiplier of fish out vs fish in
+    -  time taken per recipe is now based on the fish value, and not the output multiplier. So higher complexity items when used as input will create a higher item/s output. At a complexity of 1, the output is 10/s, at 8 20/s, so on like above 
+    -  removed requirement from transmutation devices to have fish as fuel
+  Bugfixes:
+    -  science pack recipes are back to having their fish value multiplied by the batch size
+---------------------------------------------------------------------------------------------------
+Version: 0.2.10
+Date: 9. 05. 2024
+  Changes:
+    -  Deconstruction recipe icons are now sorted first by the fish value of the item produced, the name of the item produced, the value of the item being deconstructed
+  Bugfixes:
+    -  Fixed the icons looking broken after the last update
+---------------------------------------------------------------------------------------------------
+Version: 0.2.9
+Date: 9. 05. 2024
+  Bugfixes:
+    - Fixed icon problem that would lead to fishmode crashing when used with mods that defined icons using the icons array. This means that you can load fishmode in with krastorio! Yay (compatibility not there yet)
+---------------------------------------------------------------------------------------------------
+Version: 0.2.8
+Date: 7. 05. 2024
+  Changes:
+    - changed around some values in the recipe valuation numbers
+  Bugfixes:
+    - allows fish mode to work with renai transportation
+    - changes to code also make complexity work as intended, and should work with other mods that add recipes
+    - these changes affect all recipes and the numbers should feel more intuitive
+---------------------------------------------------------------------------------------------------
+Version: 0.2.7
+Date: 7. 05. 2024
+  Bugfix:
+    - fixed bug that didn't allow mod to start
+---------------------------------------------------------------------------------------------------
+Version: 0.2.6
+Date: 6. 05. 2024
+  Changes:
+    - added setting called fish value multiplier. This value determines the number of fish used in a recipe. Recommended to scale down if you are hitting 65535 fish on recipes
+---------------------------------------------------------------------------------------------------
+Version: 0.2.5
+Date: 3. 05. 2024
+  Balance Changes:
+    - Science costs significantly reduced for higher level sciences
+    - raw resource creation recipes crafting time 8 -> 6 seconds 
+---------------------------------------------------------------------------------------------------
+Version: 0.2.4
+Date: 1. 05. 2024
+  General:
+    - Fish Transmutation devices are now indestructible and can be used in blueprints
+---------------------------------------------------------------------------------------------------
+Version: 0.2.3
+Date: 22. 04. 2024
+  General:
+    - added stone recipe. How did I forget this before?
+  Bugfixes:
+    - matched setting name to key
+
+---------------------------------------------------------------------------------------------------
+Version: 0.2.2
+Date: 22. 04. 2024
+  Bugfixes:
+    - essential bugfixes
+
+---------------------------------------------------------------------------------------------------
+Version: 0.2.0
+Date: 22. 04. 2024
+  Features:
+    - Transmutation Device recipes produce a fixed rate of 20 fish per second regardless of input recipe. 
+  Bugfixes:
+    - fish transmutation recipes no longer produce an abysmal surplus. It should produce at least 1.5x the value of the item put in
+  Balance Changes:
+    - numerous recipe value changes. 
+    - raw resource production recipes are now much more expensive since fish can be acquired easier
+    - transmutation device pollution/minute 100->200
+    - transmutation device now has 4 module slots
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1 
+Date: 17. 04. 2024
+  Balance Changes:
+    - changed the numbers in the fish cost evaluation algorithm
+    - raw resource recipes in furnaces now produce 2 per craft
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0 
+Date: 16. 04. 2024
+  General:
+    - Changed fish transmutation device asset to a recoloured version of nuclear reactor remnants
+    - Added 5 new recipes for creating each raw resource from fish. Can be found in furnaces
+    - Changed furnaces to work like assembling machines to accomodate the above change
+    - Assembly machine pollution multiplier now doubles pollution by default. Can be changed in settings
+    - Transmutation Devices now create pollution at a rate of 100/m, equal to 10 miners. 
+
+  Balance Changes:
+    - reduced biter time factor to 25 by default for biter evolution, to allow for the slower early game
+    - doubled fish recipe values for copper and iron, left it the same for coal and stone. Iron and copper ore are value 1 now while coal and stone are value 0.5
+    - fish now have a recipe value of one
+    - algorithm value for complexity increased to 0.05
+---------------------------------------------------------------------------------------------------
+Version: 1.3.0 Fishmode (cakem), 0.0.0 Fishmode plus
+Date: 04. 04. 2024
+  Features:
+    - Transmutation devices consume fish as a fuel source.
+    - Transmutation devices can be affected by modules.
+    - If you have lots of fish to spare, you can now craft your own Transmutation devices.
+  Balancing:
+    - Complete rework of the formula used to determine trasmutation fish results. The new formula emphasizes complexity over raw ingredient value.
+    - Science packs require a lot less fish.
+
+
+
+
+
+
+
