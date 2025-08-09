@@ -1,0 +1,13 @@
+{
+  "name": "marketscience",
+  "version": "0.1.4",
+  "factorio_version": "1.1",
+  "title": "Market Science",
+  "author": "TheThunderBirds",
+  "contact": "",
+  "homepage": "",
+  "dependencies": [
+    "base >= 1.1.0"
+  ],
+  "description": "Do research by providing the requested items to the market."
+}
