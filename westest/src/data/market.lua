@@ -22,21 +22,48 @@
 -- signals.collision_mask = {}
 
 local market = {
+    -- TODO WESD add signals showing market demand
     type = "container",
     name = "science-market",
     destructible = false,
-    -- minable = false,
     minable_flag = false,
     max_health = 800,
     inventory_size = 48,
     collision_box = {{-1.4, -1.4}, {1.4, 1.4}},
-    corpse = "big-remnants",
-    damaged_trigger_effect = {
-        damage_type_filters = "fire",
-        entity_name = "spark-explosion",
-        offset_deviation = {{-0.5, -0.5}, {0.5, 0.5}},
-        offsets = {{0, 1}},
-        type = "create-entity"
+    -- make completely invulnerable to damage
+    resistances = {
+        {
+            type = "physical",
+            percent = 100
+        },
+        {
+            type = "impact",
+            percent = 100
+        },
+        {
+            type = "fire",
+            percent = 100
+        },
+        {
+            type = "acid",
+            percent = 100
+        },
+        {
+            type = "poison",
+            percent = 100
+        },
+        {
+            type = "explosion",
+            percent = 100
+        },
+        {
+            type = "laser",
+            percent = 100
+        },
+        {
+            type = "electric",
+            percent = 100
+        }
     },
     flags = {"placeable-neutral", "player-creation"},
     icon = "__base__/graphics/icons/market.png",
