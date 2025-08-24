@@ -7,3 +7,5 @@ script.on_event(defines.events.on_gui_opened, function(event)
         end
     end
 end)
+
+    -- TODO WESD also display message on placing a lab?

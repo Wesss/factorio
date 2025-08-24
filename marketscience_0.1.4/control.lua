@@ -367,12 +367,16 @@ script.on_nth_tick(60, function(event)
                         }
                     }
                     local multiplier = 0
+                    -- TODO WESD feature - compute research cose
                     for j, science in ipairs(technology.research_unit_ingredients) do
                         multiplier = multiplier + global.item_values[science.name]
                     end
+                    -- TODO WESD feature - progress research
                     game.forces[force_index].research_progress =
-                        math.min(1, market.market.force.research_progress + score / technology.research_unit_count /
-                            multiplier)
+                        math.min(
+                            1,
+                            market.market.force.research_progress + score / technology.research_unit_count / multiplier
+                        )
                     UpdateSignals(force_index)
                 end
             end
