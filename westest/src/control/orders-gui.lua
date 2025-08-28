@@ -1,7 +1,8 @@
 
 local ordersGUI = {}
 
-function ordersGUI.updateOrdersGUI()
+function ordersGUI.updateOrdersGUI(orderQueue)
+    -- TODO WESD display orderQueue contents
     for index, player in pairs(game.players) do
         local main_frame = player.gui.left.orders_main_frame
         if main_frame == nil then
@@ -11,7 +12,6 @@ function ordersGUI.updateOrdersGUI()
                 caption = "Orders"
             }
         end
-        -- TODO WESD fill in rest of GUI
     end
 end
 

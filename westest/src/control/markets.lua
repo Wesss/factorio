@@ -4,7 +4,8 @@ local marketValue = require("src.control.market-value")
 local markets = {}
 
 -- iterate all markets and fulfil orders
-function markets.checkMarkets()
+function markets.checkMarkets(currentOrder)
+    -- TODO WESD actual check and fulfil currentOrder
     game.print("checkMarkets!")
     
     -- check for active research
@@ -24,21 +25,15 @@ function markets.checkMarkets()
     for _, surface in pairs(game.surfaces) do
         local markets = surface.find_entities_filtered({name = "science-market"})
         for _, market in pairs(markets) do
-
-            -- TODO WESD implement order fulfilment
             local inventory = market.get_inventory(defines.inventory.chest)
-            local itemName = "iron-plate"
-            local amount = inventory.get_item_count(itemName)
-            local marketValue = marketValue.GetValue(itemName)
-            local itemizedValue = amount * marketValue
-            game.print(itemName .. " amount=" .. amount .. " marketValue=" .. marketValue .. "  itemizedValue=" .. itemizedValue)
+            local valueFulfilled = currentOrder:fulfill(inventory, researchValueRemaining)
+            researchValueRemaining = researchValueRemaining - valueFulfilled
+            game.print("valueFulfilled=" .. valueFulfilled)
 
-            fulfilledValue = fulfilledValue + itemizedValue
-            -- TODO WESD create a notion of orders, ensure we don't consume over order limit
+            fulfilledValue = fulfilledValue + valueFulfilled
         end
     end
 
-    -- TODO WESD ensure we don't consume over research completion
     -- advance research based on order fulfilment
     local progress = fulfilledValue / researchValue
     game.print("fulfilledValue=" .. fulfilledValue .. " progress=" .. progress)

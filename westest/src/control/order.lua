@@ -1,4 +1,5 @@
 -- local util = require("util")
+local marketValue = require("src.control.market-value")
 local inspect = require("src.util.inspect")
 -- local table = require("__flib__/table")
 
@@ -21,24 +22,35 @@ function LineItem:remaining()
     return self.amount - self.fulfilled
 end
 
--- Given another line item representing items for this to take, take and fulfil as much as possible
--- ex. if both line items are the same item type, fulfills both equal to the minimum amount remaining.
-function LineItem:fulfill(lineItemOther)
-    if (lineItemOther.itemName ~= self.itemName) then
-        return
+function LineItem:isFulfilled()
+    return self.amount == self.fulfilled
+end
+
+-- fulfil the given line item as much as possible using the given inventory
+function LineItem:fulfill(inventory, resarchValueRemaining)
+    if (resarchValueRemaining <= 0) then
+        return 0
     end
     local remaining = self:remaining()
     if (remaining == 0) then
-        return
+        return 0
     end
-    local otherRemaining = lineItemOther:remaining()
-    if (otherRemaining == 0) then
-        return
+    local inventoryCnt = inventory.get_item_count(self.itemName)
+    if (inventoryCnt == 0) then
+        return 0
     end
+    local marketValue = marketValue.GetValue(self.itemName)
+    -- round up so that its possible to reach 100% completion
+    local researchCntMax = math.ceil(resarchValueRemaining / marketValue)
+    local limitCnt = math.min(remaining, researchCntMax)
 
-    local min = math.min(remaining, otherRemaining)
-    self.fulfilled = self.fulfilled + min
-    otherRemaining.fulfilled = otherRemaining.fulfilled + min
+    local toRemoveCnt = math.min(inventoryCnt, limitCnt)
+    local itemizedValue = toRemoveCnt * marketValue
+    inventory.remove({name = self.itemName, count = toRemoveCnt})
+    game.print("itemname=" .. self.itemName .. " toRemoveCnt=" .. toRemoveCnt .. " itemizedValue=" .. itemizedValue)
+
+    self.fulfilled = self.fulfilled + itemizedValue
+    return itemizedValue
 end
 
 -- Represents a batch of items that need to be filled to progress science
@@ -54,24 +66,29 @@ function Order:new()
     return instance
 end
 
--- Returns the queue of orders (first order is current order to fill).
--- Removes any fulfilled orders and replaces with new ones.
-function Order.getOrders()
-    -- TODO WESD load orders from storage
-    local queue = {}
-    local order = Order:new()
-    table.insert(queue, order)
-    -- TODO WESD implement actual order generation
-    local lineItem = LineItem:new("iron-plate", 100)
-    table.insert(order.lineItems, lineItem)
-
-    return queue
+-- fulfils this order as much as possible with the given items
+function Order:fulfill(inventory, researchValueRemaining)
+    -- TODO WESD LAST - testing order fulfilment
+    local totalValueFulfilled = 0
+    for a, lineItem in pairs(self.lineItems) do
+        local valueFulfilled = lineItem:fulfill(inventory, researchValueRemaining)
+        totalValueFulfilled = totalValueFulfilled + valueFulfilled
+        researchValueRemaining = math.max(0, researchValueRemaining - valueFulfilled)
+    end
+    return totalValueFulfilled
 end
 
--- persists the given order queue in storage
-function Order.persist(orders)
-    -- TODO WESD persist orders to storage
-    -- TODO WESD make the queue its own class?
+-- returns true if this order needs no more items. false if more items can still be fulfilled.
+function Order:isFulfilled()
+    for _, lineItem in pairs(self.lineItems) do
+        if not lineItem:isFulfilled() then
+            return false
+        end
+    end
+    return true
 end
 
-return Order, LineItem
+return {
+    Order = Order,
+    LineItem = LineItem
+}
