@@ -68,7 +68,6 @@ end
 
 -- fulfils this order as much as possible with the given items
 function Order:fulfill(inventory, researchValueRemaining)
-    -- TODO WESD LAST - testing order fulfilment
     local totalValueFulfilled = 0
     for a, lineItem in pairs(self.lineItems) do
         local valueFulfilled = lineItem:fulfill(inventory, researchValueRemaining)

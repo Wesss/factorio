@@ -1,4 +1,5 @@
 
+local inspect = require("src.util.inspect")
 local marketValue = require("src.control.market-value")
 
 local markets = {}
@@ -28,9 +29,20 @@ function markets.checkMarkets(currentOrder)
             local inventory = market.get_inventory(defines.inventory.chest)
             local valueFulfilled = currentOrder:fulfill(inventory, researchValueRemaining)
             researchValueRemaining = researchValueRemaining - valueFulfilled
-            game.print("valueFulfilled=" .. valueFulfilled)
 
             fulfilledValue = fulfilledValue + valueFulfilled
+            
+            -- print value to players
+            for _, player in pairs(force.players) do
+                player.create_local_flying_text({
+                    text = "+" .. math.floor(fulfilledValue + 0.5),
+                    position = market.position,
+                    surface = market.surface,
+                    color = {
+                        g = 1
+                    }
+                })
+            end
         end
     end
 
@@ -39,8 +51,5 @@ function markets.checkMarkets(currentOrder)
     game.print("fulfilledValue=" .. fulfilledValue .. " progress=" .. progress)
     force.research_progress = math.min(1, force.research_progress + progress)
 end
-
--- function markets.progressResearch(amount)
--- end
 
 return markets
