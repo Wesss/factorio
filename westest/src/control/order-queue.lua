@@ -18,25 +18,38 @@ function OrderQueue:new()
     return instance
 end
 
--- returns the order queue. If missing, generates a new one
-function OrderQueue.load()
-    -- TODO WESD load from storage
-    local queue = nil
-    if queue == nil then
-        queue = OrderQueue:new()
-    end
-    return queue
-end
-
 -- persists the given order queue in storage
 function OrderQueue:save()
-    -- TODO WESD persist to storage
+    storage.orderQueue = self:toStorageFormat()
+end
+
+-- returns a table representation of this that can be written to storage. does not contain metatable (cant call class functions)
+function OrderQueue:toStorageFormat()
+    return {
+        currentOrder = self.currentOrder:toStorageFormat()
+    }
+end
+
+-- returns the order queue. If missing, generates a new one
+function OrderQueue.load()
+    return OrderQueue.fromStorageFormat(storage.orderQueue)
+end
+
+-- returns an instance of this, initialized from its storage table
+function OrderQueue.fromStorageFormat(storageOrderQueue)
+    local orderQueue = OrderQueue:new()
+
+    if storageOrderQueue ~= nil then
+        orderQueue.currentOrder = Order.fromStorageFormat(storageOrderQueue.currentOrder)
+    end
+
+    return orderQueue
 end
 
 -- Returns the current order to fill. If fulfilled or missing, handles setting new active order.
 function OrderQueue:getCurrentOrder()
     local curOrder = self.currentOrder
-    if curOrder == nil or curOrder:isFullfilled() then
+    if curOrder == nil or curOrder:isFulfilled() then
         curOrder = Order:new()
         self.currentOrder = curOrder
         -- TODO WESD implement actual order generation

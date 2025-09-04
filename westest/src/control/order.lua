@@ -18,12 +18,34 @@ function LineItem:new(itemName, amount)
     return instance
 end
 
+-- returns a table representation of this that can be written to storage. does not contain metatable (cant call class functions)
+function LineItem:toStorageFormat()
+    return {
+        itemName = self.itemName,
+        amount = self.amount,
+        fulfilled = self.fulfilled
+    }
+end
+
+-- returns an instance of this, initialized from its storage table
+function LineItem.fromStorageFormat(storageLineItem)
+    local lineItem = LineItem:new()
+
+    if storageLineItem ~= nil then
+        lineItem.itemName = storageLineItem.itemName
+        lineItem.amount = storageLineItem.amount
+        lineItem.fulfilled = storageLineItem.fulfilled
+    end
+
+    return lineItem
+end
+
 function LineItem:remaining()
     return self.amount - self.fulfilled
 end
 
 function LineItem:isFulfilled()
-    return self.amount == self.fulfilled
+    return self.fulfilled >= self.amount
 end
 
 -- fulfil the given line item as much as possible using the given inventory
@@ -44,12 +66,12 @@ function LineItem:fulfill(inventory, resarchValueRemaining)
     local researchCntMax = math.ceil(resarchValueRemaining / marketValue)
     local limitCnt = math.min(remaining, researchCntMax)
 
-    local toRemoveCnt = math.min(inventoryCnt, limitCnt)
-    local itemizedValue = toRemoveCnt * marketValue
-    inventory.remove({name = self.itemName, count = toRemoveCnt})
-    game.print("itemname=" .. self.itemName .. " toRemoveCnt=" .. toRemoveCnt .. " itemizedValue=" .. itemizedValue)
+    local sellCount = math.min(inventoryCnt, limitCnt)
+    local itemizedValue = sellCount * marketValue
+    game.print("fulfill itemname=" .. self.itemName .. " amount=" .. self.amount .. " fulfilled=" .. self.fulfilled .. " remaining=" .. remaining .. " researchCntMax= " .. researchCntMax .. " toRemoveCnt=" .. sellCount .. " itemizedValue=" .. itemizedValue)
 
-    self.fulfilled = self.fulfilled + itemizedValue
+    inventory.remove({name = self.itemName, count = sellCount})
+    self.fulfilled = self.fulfilled + sellCount
     return itemizedValue
 end
 
@@ -64,6 +86,31 @@ function Order:new()
     instance.lineItems = {}
 
     return instance
+end
+
+-- returns a table representation of this that can be written to storage. does not contain metatable (cant call class functions)
+function Order:toStorageFormat()
+    local storageLineItems = {}
+    for _, lineItem in pairs(self.lineItems) do
+        table.insert(storageLineItems, lineItem:toStorageFormat())
+    end
+    return {
+        lineItems = storageLineItems
+    }
+end
+
+-- returns an instance of this, initialized from its storage table
+function Order.fromStorageFormat(storageOrder)
+    local order = Order:new()
+
+    if storageOrder ~= nil then
+        order.lineItems = {}
+        for _, storageLineItem in pairs(storageOrder.lineItems) do
+            table.insert(order.lineItems, LineItem.fromStorageFormat(storageLineItem))
+        end
+    end
+
+    return order
 end
 
 -- fulfils this order as much as possible with the given items

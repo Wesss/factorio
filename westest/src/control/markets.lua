@@ -6,7 +6,6 @@ local markets = {}
 
 -- iterate all markets and fulfil orders
 function markets.checkMarkets(currentOrder)
-    -- TODO WESD actual check and fulfil currentOrder
     game.print("checkMarkets!")
     
     -- check for active research
@@ -20,7 +19,6 @@ function markets.checkMarkets(currentOrder)
     -- find maximum remaining research
     local researchValue = marketValue.GetTechnologyValue(technology.name)
     local researchValueRemaining = math.ceil((1.0 - force.research_progress) * researchValue)
-    game.print("researchValue=" .. researchValue .. " researchValueRemaining=" .. researchValueRemaining)
 
     local fulfilledValue = 0
     for _, surface in pairs(game.surfaces) do
@@ -32,7 +30,7 @@ function markets.checkMarkets(currentOrder)
 
             fulfilledValue = fulfilledValue + valueFulfilled
             
-            -- print value to players
+            -- print value floating text over the market
             for _, player in pairs(force.players) do
                 player.create_local_flying_text({
                     text = "+" .. math.floor(fulfilledValue + 0.5),

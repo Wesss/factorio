@@ -3,7 +3,6 @@ local tne = noise.to_noise_expression
 
 -- local dnf = noise.define_noise_function
 
-
 local M = {}
 
 local reduction_factor = 1.5

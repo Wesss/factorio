@@ -1,3 +1,5 @@
+-- local noise = require("noise")
+
 -- local signals = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
 -- signals.name = "market-signals"
 -- signals.energy_source = {
@@ -80,8 +82,7 @@ local market = {
     subgroup = "other",
     circuit_wire_connection_point = circuit_connector_definitions["roboport"].points,
     circuit_connector_sprites = circuit_connector_definitions["roboport"].sprites,
-    circuit_wire_max_distance = default_circuit_wire_max_distance
+    circuit_wire_max_distance = default_circuit_wire_max_distance,
 }
 
--- data:extend({signals, market})
 data:extend({market})
