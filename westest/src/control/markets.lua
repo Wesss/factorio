@@ -6,7 +6,7 @@ local markets = {}
 
 -- iterate all markets and fulfil orders
 function markets.checkMarkets(currentOrder)
-    game.print("checkMarkets!")
+    game.print("wesd flag1 checkMarkets!")
     
     -- check for active research
     -- TODO WESD if more than default forces exist, print an error message to players
@@ -31,22 +31,25 @@ function markets.checkMarkets(currentOrder)
             fulfilledValue = fulfilledValue + valueFulfilled
             
             -- print value floating text over the market
-            for _, player in pairs(force.players) do
-                player.create_local_flying_text({
-                    text = "+" .. math.floor(fulfilledValue + 0.5),
-                    position = market.position,
-                    surface = market.surface,
-                    color = {
-                        g = 1
-                    }
-                })
+            local roundedValue = math.floor(fulfilledValue + 0.5);
+            if roundedValue > 0 then
+                for _, player in pairs(force.players) do
+                    player.create_local_flying_text({
+                        text = "+" .. math.floor(fulfilledValue + 0.5),
+                        position = market.position,
+                        surface = market.surface,
+                        color = {
+                            g = 1
+                        }
+                    })
+                end
             end
         end
     end
 
     -- advance research based on order fulfilment
     local progress = fulfilledValue / researchValue
-    game.print("fulfilledValue=" .. fulfilledValue .. " progress=" .. progress)
+    game.print("wesd flag3 checkMarketEnd fulfilledValue=" .. fulfilledValue .. " progress=" .. progress)
     force.research_progress = math.min(1, force.research_progress + progress)
 end
 

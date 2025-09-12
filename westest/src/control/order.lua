@@ -68,7 +68,7 @@ function LineItem:fulfill(inventory, resarchValueRemaining)
 
     local sellCount = math.min(inventoryCnt, limitCnt)
     local itemizedValue = sellCount * marketValue
-    game.print("fulfill itemname=" .. self.itemName .. " amount=" .. self.amount .. " fulfilled=" .. self.fulfilled .. " remaining=" .. remaining .. " researchCntMax= " .. researchCntMax .. " toRemoveCnt=" .. sellCount .. " itemizedValue=" .. itemizedValue)
+    game.print("wesd flag2 LineItem:fulfill itemname=" .. self.itemName .. " amount=" .. self.amount .. " fulfilled=" .. self.fulfilled .. " remaining=" .. remaining .. " researchCntMax= " .. researchCntMax .. " toRemoveCnt=" .. sellCount .. " itemizedValue=" .. itemizedValue)
 
     inventory.remove({name = self.itemName, count = sellCount})
     self.fulfilled = self.fulfilled + sellCount

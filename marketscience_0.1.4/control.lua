@@ -386,7 +386,6 @@ script.on_nth_tick(60, function(event)
 end)
 
 script.on_event(defines.events.on_lua_shortcut, function(event)
-    -- TODO WESD feature - show/hide orders UI
     if event.prototype_name == "toggle-orders" then
         local player = game.get_player(event.player_index)
         if player ~= nil then
@@ -450,7 +449,6 @@ end)
 
 script.on_event(defines.events.on_research_finished, function(event)
     local force_index = event.research.force.index
-    -- TODO WESD feature - market limit research
     if string.match(event.research.name, "market%-limit") ~= nil then
         global.market_data[force_index].market_limit = global.market_data[force_index].market_limit + 1
     end
