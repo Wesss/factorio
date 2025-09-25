@@ -2674,7 +2674,7 @@ local function load()
             -- We could calculate num_fluids in the function built for it, but we need to add the fluid prereqs themselves anyways
             local num_input_fluids = 0
             local num_output_fluids = 0
-            -- TODO WESD LAST lkp - randomizer item prereqs for recipes
+            -- TODO WESD lkp - randomizer item prereqs for recipes
             if recipe.ingredients ~= nil then
                 for _, ing in pairs(recipe.ingredients) do
                     if ing.type == "item" then
@@ -2824,6 +2824,7 @@ local function load()
                 end
             end
 
+            -- TODO WESD lkp - randomizer mining drill dependencies?
             for _, mining_drill in pairs(data.raw["mining-drill"]) do
                 local has_resource_category = false
 
@@ -3471,6 +3472,7 @@ local function load()
     for _, tech in pairs(data.raw.technology) do
         prereqs = {}
 
+        -- TODO WESD lkp - randomizer technology prerequisites
         if tech.prerequisites ~= nil then
             for _, prerequisite in pairs(tech.prerequisites) do
                 table.insert(prereqs, {

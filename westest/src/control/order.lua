@@ -1,11 +1,10 @@
--- local util = require("util")
 local marketValue = require("src.control.market-value")
 local inspect = require("src.util.inspect")
--- local table = require("__flib__/table")
 
 -- Represents an item and a quantity of it
 local LineItem = {}
 LineItem.__index = LineItem
+script.register_metatable("LineItem", LineItem)
 
 function LineItem:new(itemName, amount)
     local instance = {}
@@ -16,28 +15,6 @@ function LineItem:new(itemName, amount)
     instance.fulfilled = 0
 
     return instance
-end
-
--- returns a table representation of this that can be written to storage. does not contain metatable (cant call class functions)
-function LineItem:toStorageFormat()
-    return {
-        itemName = self.itemName,
-        amount = self.amount,
-        fulfilled = self.fulfilled
-    }
-end
-
--- returns an instance of this, initialized from its storage table
-function LineItem.fromStorageFormat(storageLineItem)
-    local lineItem = LineItem:new()
-
-    if storageLineItem ~= nil then
-        lineItem.itemName = storageLineItem.itemName
-        lineItem.amount = storageLineItem.amount
-        lineItem.fulfilled = storageLineItem.fulfilled
-    end
-
-    return lineItem
 end
 
 function LineItem:remaining()
@@ -78,39 +55,16 @@ end
 -- Represents a batch of items that need to be filled to progress science
 local Order = {}
 Order.__index = Order
+script.register_metatable("Order", Order)
 
 function Order:new()
     local instance = {}
     setmetatable(instance, Order)
 
+    instance.storageState = {}
     instance.lineItems = {}
 
     return instance
-end
-
--- returns a table representation of this that can be written to storage. does not contain metatable (cant call class functions)
-function Order:toStorageFormat()
-    local storageLineItems = {}
-    for _, lineItem in pairs(self.lineItems) do
-        table.insert(storageLineItems, lineItem:toStorageFormat())
-    end
-    return {
-        lineItems = storageLineItems
-    }
-end
-
--- returns an instance of this, initialized from its storage table
-function Order.fromStorageFormat(storageOrder)
-    local order = Order:new()
-
-    if storageOrder ~= nil then
-        order.lineItems = {}
-        for _, storageLineItem in pairs(storageOrder.lineItems) do
-            table.insert(order.lineItems, LineItem.fromStorageFormat(storageLineItem))
-        end
-    end
-
-    return order
 end
 
 -- fulfils this order as much as possible with the given items

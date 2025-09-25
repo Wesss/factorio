@@ -24,7 +24,7 @@
 -- signals.collision_mask = {}
 
 local market = {
-    -- TODO WESD add signals showing market demand
+    -- TODO WESD v1 add signals showing market demand
     -- TODO WESD move wire attachment point to top right of market (currently just center, looks weird)
     type = "container",
     name = "science-market",

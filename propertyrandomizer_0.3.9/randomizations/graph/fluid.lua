@@ -58,7 +58,7 @@ randomizations.fluid_in_conns = function(id)
                 local function add_fluid_prereq(prereq, conn_to_blacklist)
                     local prereq_node = dep_graph[build_graph.key(prereq.type, prereq.name)]
 
-                    if fluid_to_surface[prereq_node.fluid.name] == nil or fluid_to_surface[prereq_node.fluid.name] = build_graph.surfaces[prereq_node.surface].name then
+                    if fluid_to_surface[prereq_node.fluid.name] == nil or fluid_to_surface[prereq_node.fluid.name] == build_graph.surfaces[prereq_node.surface].name then
                         if fluid_to_surface[prereq_node.fluid.name] == nil then
                             fluid_to_surface[prereq_node.fluid.name] = build_graph.surfaces[prereq_node.surface].name
 
@@ -67,7 +67,7 @@ randomizations.fluid_in_conns = function(id)
                             end
                         end
                         
-                        if old_aggregate_cost.material_to_cost["fluid-" .. prereq_node.fluid.name] != nil then
+                        if old_aggregate_cost.material_to_cost["fluid-" .. prereq_node.fluid.name] ~= nil then
                             has_fluid_prereq = true
                             table.insert(shuffled_fluid_prereqs, prereq)
                             table.insert(blacklist, build_graph.conn_key(conn_to_blacklist))
