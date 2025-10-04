@@ -28,7 +28,7 @@ function DependencyGraph:new()
 end
 
 -- returns the graph node of the given type/name. nil if does not exist
-function DependencyGraph:GetNode(nodeType, nodeName)
+function DependencyGraph:getNode(nodeType, nodeName)
     local dict = nil
     if (nodeType == GraphNode.Types.ITEM) then
         dict = self.items
@@ -41,26 +41,26 @@ function DependencyGraph:GetNode(nodeType, nodeName)
     elseif (nodeType == GraphNode.Types.RESOURCE) then
         dict = self.resources
     else
-        error("MarketSience - ERROR DependencyGraph:GetNode unknown nodeType=" .. nodeType)
+        error("MarketSience - ERROR DependencyGraph:getNode unknown nodeType=" .. nodeType)
     end
 
     return dict[nodeName]
 end
 
 -- adds a node of the given type/name to the dependency graph & calculates dependencies
-function DependencyGraph:AddNode(nodeType, nodeName)
+function DependencyGraph:addNode(nodeType, nodeName)
     if (nodeType == GraphNode.Types.ITEM) then
-        self:_AddItemNode(nodeName)
+        self:_addItemNode(nodeName)
     elseif (nodeType == GraphNode.Types.FLUID) then
-        self:_AddFluidNode(nodeName)
+        self:_addFluidNode(nodeName)
     elseif (nodeType == GraphNode.Types.RECIPE) then
-        self:_AddRecipeNode(nodeName)
+        self:_addRecipeNode(nodeName)
     elseif (nodeType == GraphNode.Types.TECHNOLOGY) then
-        self:_AddTechnologyNode(nodeName)
+        self:_addTechnologyNode(nodeName)
     elseif (nodeType == GraphNode.Types.RESOURCE) then
-        self:_AddResourceNode(nodeName)
+        self:_addResourceNode(nodeName)
     else
-        error("MarketScience - ERROR DependencyGraph:GetNode unknown nodeType=" .. nodeType)
+        error("MarketScience - ERROR DependencyGraph:getNode unknown nodeType=" .. nodeType)
     end
 end
 
@@ -81,7 +81,7 @@ function DependencyGraph._getMineableProperties(itemName)
 end
 
 -- adds the given resource by name to the dependency graph
-function DependencyGraph:_AddResourceNode(resourceName)
+function DependencyGraph:_addResourceNode(resourceName)
     local node = GraphNode:new()
     self.resources[resourceName] = node
     node.nodeType = GraphNode.Types.RESOURCE
@@ -137,25 +137,25 @@ function DependencyGraph:_AddResourceNode(resourceName)
 end
 
 -- adds the given item by name to the dependency graph
-function DependencyGraph:_AddItemNode(itemName)
+function DependencyGraph:_addItemNode(itemName)
     local node = GraphNode:new()
     self.items[itemName] = node
     node.nodeType = GraphNode.Types.ITEM
     node.nodeName = itemName
-    node.dependencies = DependencyGraph.GetItemFluidDependencies(itemName, false)
+    node.dependencies = DependencyGraph._getItemFluidDependencies(itemName, false)
 end
 
 -- adds the given fluid by name to the dependency graph
-function DependencyGraph:_AddFluidNode(fluidName)
+function DependencyGraph:_addFluidNode(fluidName)
     local node = GraphNode:new()
     self.fluids[fluidName] = node
     node.nodeType = GraphNode.Types.ITEM
     node.nodeName = fluidName
-    node.dependencies = DependencyGraph.GetItemFluidDependencies(fluidName, true)
+    node.dependencies = DependencyGraph._getItemFluidDependencies(fluidName, true)
 end
 
 -- gets graph dependencies of the given item/fluid
-function DependencyGraph.GetItemFluidDependencies(itemName, isFluid)
+function DependencyGraph._getItemFluidDependencies(itemName, isFluid)
     local dependencies = GraphNodeGroup:new()
 
     -- item depends on only 1 of possibly many ways to obtain the item
@@ -179,7 +179,7 @@ function DependencyGraph.GetItemFluidDependencies(itemName, isFluid)
         filter = "has-product-fluid"
     end
     local recipes = prototypes.get_recipe_filtered{{filter = filter, elem_filters = {{filter = "name", name = itemName}}}}
-    for _, recipe in ipairs(recipes) do
+    for _, recipe in pairs(recipes) do
         local recipeDependency = GraphNodeGroup:new()
         table.insert(dependencies.groupDependencies, recipeDependency)
         recipeDependency.groupingType = GraphNodeGroup.Types.LEAF
@@ -191,7 +191,7 @@ function DependencyGraph.GetItemFluidDependencies(itemName, isFluid)
 end
 
 -- adds the given recipe by name to the dependency graph
-function DependencyGraph:_AddRecipeNode(recipeName)
+function DependencyGraph:_addRecipeNode(recipeName)
     local node = GraphNode:new()
     self.recipes[recipeName] = node
     node.nodeType = GraphNode.Types.RECIPE
@@ -207,10 +207,10 @@ function DependencyGraph:_AddRecipeNode(recipeName)
     end
     local ingredients = recipe.ingredients
     if (ingredients == nil or #ingredients == 0) then
-        dependencies.groupingType = GraphNodeGroup.Type.NONE
+        dependencies.groupingType = GraphNodeGroup.Types.NONE
     else
         -- AND each item ingredient
-        dependencies.groupingType = GraphNodeGroup.Type.AND
+        dependencies.groupingType = GraphNodeGroup.Types.AND
         for _, ingredient in ipairs(ingredients) do
             local dependency = GraphNodeGroup:new()
             table.insert(dependencies.groupDependencies, dependency)
@@ -222,7 +222,7 @@ function DependencyGraph:_AddRecipeNode(recipeName)
 end
 
 -- adds the given technology by name to the dependency graph
-function DependencyGraph:_AddTechnologyNode(technologyName)
+function DependencyGraph:_addTechnologyNode(technologyName)
     local node = GraphNode:new()
     self.technologies[technologyName] = node
     node.nodeType = GraphNode.Types.TECHNOLOGY
@@ -236,3 +236,5 @@ function DependencyGraph:_AddTechnologyNode(technologyName)
     -- as such, we don't bother with adding any dependencies to the techs themselves
     dependencies.groupingType = GraphNodeGroup.Type.NONE
 end
+
+return DependencyGraph

@@ -40,7 +40,7 @@ GraphNode.Types = {
     -- represents a research that can be completed to unlock effects or recipes
     TECHNOLOGY = "TECHNOLOGY",
     -- represents a recipe to create items
-    RECIPIE = "RECIPIE",
+    RECIPE = "RECIPE",
     -- represents a type of item (holdable by player, used in crafting/placing)
     ITEM = "ITEM",
     -- represents a type of fluid (not holdable/placable, used in crafting)

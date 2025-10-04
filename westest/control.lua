@@ -2,6 +2,7 @@
 local ticksPerCheck = 60
 
 local inspect = require("src.util.inspect")
+local TestRunner = require("test.test-runner")
 
 require("src.control.disable-labs-message")
 require("src.control.spawn-markets")
@@ -9,7 +10,6 @@ local OrderQueue = require("src.control.order-queue")
 local OrdersGUI = require("src.control.orders-gui")
 local Markets = require("src.control.markets")
 local DependencyGraph = require("src.control.graph.dependency-graph")
-local Tests = require("test.base-2-0.dependency-graph")
 
 -- -- TODO WESD on game start, add all unlocked items to the order queue
 -- script.on_event(defines.events.on_init, function(event)
@@ -42,8 +42,7 @@ script.on_nth_tick(60, function(event)
     -- OrdersGUI.updateOrdersGUI(orderQueue)
 
     -- TESTING
-    Tests.runTests(dependencyGraph)
-    error("Tests finished! Check logs for output")
+    TestRunner.run({dependencyGraph = dependencyGraph})
     
     -- persist state
     storage["OrderQueue"] = orderQueue
