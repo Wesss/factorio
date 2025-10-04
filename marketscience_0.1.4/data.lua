@@ -1,5 +1,0 @@
-require("prototypes.entity.market")
-require("prototypes.item.item")
-require("prototypes.recipe.recipe")
-require("prototypes.shortcut")
-require("prototypes.technology.technology")
