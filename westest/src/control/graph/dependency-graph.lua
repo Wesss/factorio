@@ -149,7 +149,7 @@ end
 function DependencyGraph:_addFluidNode(fluidName)
     local node = GraphNode:new()
     self.fluids[fluidName] = node
-    node.nodeType = GraphNode.Types.ITEM
+    node.nodeType = GraphNode.Types.FLUID
     node.nodeName = fluidName
     node.dependencies = DependencyGraph._getItemFluidDependencies(fluidName, true)
 end
