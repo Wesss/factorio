@@ -31,13 +31,14 @@ script.on_nth_tick(60, function(event)
     if orderQueue == nil then
         orderQueue = OrderQueue:new()
     end
+    -- TODO WESD refactor this getting and setting of dependency graph into static method in module
     local dependencyGraph = storage["DependencyGraph"]
     if dependencyGraph == nil then
         dependencyGraph = DependencyGraph:new()
     end
 
     -- -- check markets
-    -- local curOrder = orderQueue:getCurrentOrder()
+    -- local curOrder = orderQueue:getCurrentOrder(dependencyGraph)
     -- Markets.checkMarkets(curOrder)
     -- OrdersGUI.updateOrdersGUI(orderQueue)
 
@@ -49,14 +50,18 @@ script.on_nth_tick(60, function(event)
     storage["DependencyGraph"] = dependencyGraph
 end)
 
--- when finishing a research, add unlocked items as potential orders
--- script.on_event(defines.events.on_research_finished, function(event)
---     for _, effect in ipairs(research.effects) do
---         if effect.type == "unlock-recipe" then
---             OrderQueue.updateUnlockState(effect.recipe)
---         end
---     end
--- end)
+--when finishing a research, add unlocked items as potential orders
+script.on_event(defines.events.on_research_finished, function(event)
+    -- TODO WESD refactor this getting and setting of dependency graph into static method in module
+    local dependencyGraph = storage["DependencyGraph"]
+    if dependencyGraph == nil then
+        dependencyGraph = DependencyGraph:new()
+    end
+
+    OrderQueue.onResearchFinished(dependencyGraph, event.research)
+
+    storage["DependencyGraph"] = dependencyGraph
+end)
 
 -- if mods changed, show warning to player
 script.on_configuration_changed(function()

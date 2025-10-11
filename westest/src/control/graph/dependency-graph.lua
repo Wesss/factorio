@@ -44,6 +44,10 @@ function DependencyGraph:getNode(nodeType, nodeName)
         error("MarketSience - ERROR DependencyGraph:getNode unknown nodeType=" .. nodeType)
     end
 
+    local res = dict[nodeName]
+    if res == nil then
+        self:addNode(nodeType, nodeName)
+    end
     return dict[nodeName]
 end
 
@@ -229,12 +233,12 @@ function DependencyGraph:_addTechnologyNode(technologyName)
     node.nodeName = technologyName
 
     local dependencies = GraphNodeGroup:new()
-    node.GraphNodeGroup = dependencies
+    node.dependencies = dependencies
 
     -- this mod doesn't care about the tree part of the tech tree, we just need to check if some enabling techs are unlocked or not
     -- (ex. ability to add liquid into mining drills)
     -- as such, we don't bother with adding any dependencies to the techs themselves
-    dependencies.groupingType = GraphNodeGroup.Type.NONE
+    dependencies.groupingType = GraphNodeGroup.Types.NONE
 end
 
 return DependencyGraph

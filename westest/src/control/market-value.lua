@@ -1,6 +1,5 @@
--- local util = require("util")
+
 local inspect = require("src.util.inspect")
--- local table = require("__flib__/table")
 
 local marketValue = {}
 
