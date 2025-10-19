@@ -1,4 +1,4 @@
-local marketValue = require("src.control.market-value")
+local MarketValue = require("src.control.market-value")
 local inspect = require("src.util.inspect")
 
 -- Represents an item and a quantity of it
@@ -26,7 +26,7 @@ function LineItem:isFulfilled()
 end
 
 -- fulfil the given line item as much as possible using the given inventory
-function LineItem:fulfill(inventory, resarchValueRemaining)
+function LineItem:fulfill(inventory, resarchValueRemaining, dependencyGraph)
     if (resarchValueRemaining <= 0) then
         return 0
     end
@@ -38,14 +38,13 @@ function LineItem:fulfill(inventory, resarchValueRemaining)
     if (inventoryCnt == 0) then
         return 0
     end
-    local marketValue = marketValue.GetValue(self.itemName)
+    local marketValue = MarketValue.GetValue(self.itemName, dependencyGraph)
     -- round up so that its possible to reach 100% completion
     local researchCntMax = math.ceil(resarchValueRemaining / marketValue)
     local limitCnt = math.min(remaining, researchCntMax)
 
     local sellCount = math.min(inventoryCnt, limitCnt)
     local itemizedValue = sellCount * marketValue
-    game.print("wesd flag2 LineItem:fulfill itemname=" .. self.itemName .. " amount=" .. self.amount .. " fulfilled=" .. self.fulfilled .. " remaining=" .. remaining .. " researchCntMax= " .. researchCntMax .. " toRemoveCnt=" .. sellCount .. " itemizedValue=" .. itemizedValue)
 
     inventory.remove({name = self.itemName, count = sellCount})
     self.fulfilled = self.fulfilled + sellCount
@@ -68,14 +67,14 @@ function Order:new()
 end
 
 -- fulfils this order as much as possible with the given items
-function Order:fulfill(inventory, researchValueRemaining)
+function Order:fulfill(inventory, researchValueRemaining, dependencyGraph)
     local totalValueFulfilled = 0
     for a, lineItem in pairs(self.lineItems) do
-        local valueFulfilled = lineItem:fulfill(inventory, researchValueRemaining)
+        local valueFulfilled = lineItem:fulfill(inventory, researchValueRemaining, dependencyGraph)
         totalValueFulfilled = totalValueFulfilled + valueFulfilled
         researchValueRemaining = math.max(0, researchValueRemaining - valueFulfilled)
     end
-    return totalValueFulfilled
+    return totalValueFulfilleds
 end
 
 -- returns true if this order needs no more items. false if more items can still be fulfilled.

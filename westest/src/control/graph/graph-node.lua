@@ -1,5 +1,5 @@
 
-local inspect = require("src.util.inspect")
+local Inspect = require("src.util.inspect")
 
 local GraphNodeGroup = {}
 GraphNodeGroup.__index = GraphNodeGroup
@@ -21,12 +21,14 @@ function GraphNodeGroup:new(type)
     local instance = {}
     setmetatable(instance, GraphNodeGroup)
 
-    instance.groupingType = type;
-    -- if leaf dependency, these describe dependency node
-    instance.leafNodeType = nil;
-    instance.leafNodeName = nil;
+    instance.groupingType = type
     -- if and/or dependency, contains other dependency groups to aggregate
-    instance.groupDependencies = {};
+    instance.groupDependencies = {}
+    -- if leaf dependency, these describe dependency node
+    instance.leafNodeType = nil
+    instance.leafNodeName = nil
+    -- relative number of this dependency needed to satisfy node. ex. ingredients/products per recipe.
+    instance.leafNodeScalar = 1
 
     return instance
 end
@@ -36,15 +38,15 @@ function GraphNodeGroup:checkReachable(dependencyGraph)
     if groupingType == GraphNodeGroup.Types.NONE then
         return true
     elseif groupingType == GraphNodeGroup.Types.AND then
-        for _, dependency in ipairs(self.groupDependenies) do
-            if not dependency:checkReachable() then
+        for _, dependency in ipairs(self.groupDependencies) do
+            if not dependency:checkReachable(dependencyGraph) then
                 return false
             end
         end
         return true
     elseif groupingType == GraphNodeGroup.Types.OR then
-        for _, dependency in ipairs(self.groupDependenies) do
-            if dependency:checkReachable() then
+        for _, dependency in ipairs(self.groupDependencies) do
+            if dependency:checkReachable(dependencyGraph) then
                 return true
             end
         end
@@ -57,6 +59,48 @@ function GraphNodeGroup:checkReachable(dependencyGraph)
     end
 end
 
+function GraphNodeGroup:getValue(dependencyGraph)
+    local groupingType = self.groupingType
+    if groupingType == GraphNodeGroup.Types.NONE then
+        return 0
+    elseif groupingType == GraphNodeGroup.Types.AND then
+        local sum = 0
+        for _, dependency in ipairs(self.groupDependencies) do
+            sum = sum + dependency:getValue()
+        end
+        return sum
+    elseif groupingType == GraphNodeGroup.Types.OR then
+        local min = nil
+        for _, dependency in ipairs(self.groupDependencies) do
+            local val = dependency:getValue()
+            if min == nil then
+                min = val
+            end
+            if val < min then
+                min = val
+            end
+        end
+        return min
+    elseif groupingType == GraphNodeGroup.Types.LEAF then
+    -- TODO WESD LAST debug crash that occurred here
+    -- Error while running event westest::on_nth_tick(60)
+    -- __westest__/src/control/graph/graph-node.lua:85: attempt to index local 'dependencyGraph' (a nil value)
+    -- stack traceback:
+    -- 	__westest__/src/control/graph/graph-node.lua:85: in function 'getValue'
+    -- 	__westest__/src/control/graph/graph-node.lua:75: in function 'getValue'
+    -- 	__westest__/src/control/graph/graph-node.lua:203: in function <__westest__/src/control/graph/graph-node.lua:176>
+    -- 	(...tail calls...)
+    -- 	__westest__/src/control/order-queue.lua:64: in function '_createNextOrder'
+    -- 	__westest__/src/control/order-queue.lua:34: in function 'getCurrentOrder'
+    -- 	__westest__/control.lua:32: in function <__westest__/control.lua:15>
+        local graphNode = dependencyGraph:getNode(self.leafNodeType, self.leafNodeName)
+        return graphNode.leafNodeScalar * graphNode:getValue(dependencyGraph)
+    else
+        error("MarketSience - ERROR GraphNodeGroup:checkReachable unknown groupingType=" .. groupingType)
+    end
+end
+
+ -- TODO WESD split this into its own file
 local GraphNode = {}
 GraphNode.__index = GraphNode
 script.register_metatable("GraphNode", GraphNode)
@@ -87,10 +131,13 @@ function GraphNode:new(nodeType, nodeName)
 
     -- checkReachable, if found to be reachable store state to not re-calc
     instance.foundReachable = false
+    -- getValue, store previously computed value to not re-calc
+    instance.computedValue = nil
 
     return instance
 end
 
+-- returns true if the dependency referenced by this node is reachable to the player.
 function GraphNode:checkReachable(dependencyGraph)
     if self.foundReachable then
         return true
@@ -99,7 +146,10 @@ function GraphNode:checkReachable(dependencyGraph)
     local res = nil
     local nodeType = self.nodeType
     if (nodeType == GraphNode.Types.ITEM) then
-        -- just check dependencies
+        -- TODO WESD handle this generically, any item that doesn't come from a minable source shouldn't be reachable
+        -- special case wood, its not a minable resource
+        if self.nodename == "wood" then res = false end
+        -- otherwise just check dependencies
     elseif (nodeType == GraphNode.Types.FLUID) then
         -- just check dependencies
     elseif (nodeType == GraphNode.Types.RECIPE) then
@@ -128,8 +178,43 @@ function GraphNode:checkReachable(dependencyGraph)
     end
     
     -- check dependencies
-    local res = self.dependencies.checkReachable()
+    local res = self.dependencies:checkReachable(dependencyGraph)
     self.foundReachable = res
+    return res
+end
+
+-- returns the relative value of this node.
+function GraphNode:getValue(dependencyGraph)
+    if self.computedValue ~= nil then
+        return self.computedValue
+    end
+
+    local nodeVal = 0
+    local nodeType = self.nodeType
+    if (nodeType == GraphNode.Types.ITEM) then
+        -- no intrinsic value, value purely from dependencies
+    elseif (nodeType == GraphNode.Types.FLUID) then
+        -- no intrinsic value, value purely from dependencies
+    elseif (nodeType == GraphNode.Types.RECIPE) then
+        -- some value via complexity of assembling the recipe
+        nodeVal = 0.1
+    elseif (nodeType == GraphNode.Types.TECHNOLOGY) then
+        -- no intrinsic value, just needs an unlock
+    elseif (nodeType == GraphNode.Types.RESOURCE) then
+        -- majority of value depends on number of raw resources consumed
+        nodeVal = 1
+        -- special case water as incredibly cheap
+        if self.nodeName == "water" then
+            nodeVal = 0.1
+        end
+    else
+        error("MarketSience - ERROR GraphNode:getValue unknown nodeType=" .. (nodeType or ""))
+    end
+
+    local depValue = self.dependencies:getValue()
+    local res = depValue + nodeVal
+    self.computedValue = res
+    log("TODO WESD flag GraphNode:getValue type=" .. self.nodeType .. " name=" .. self.nodeName .. " value=" .. res)
     return res
 end
 

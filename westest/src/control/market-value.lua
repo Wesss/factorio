@@ -1,20 +1,28 @@
 
-local inspect = require("src.util.inspect")
+local Inspect = require("src.util.inspect")
+local graphModule = require("src.control.graph.graph-node")
+local GraphNode = graphModule.GraphNode
+local GraphNodeGroup = graphModule.GraphNodeGroup
 
-local marketValue = {}
+local MarketValue = {}
 
-function marketValue.GetValue(itemName)
-    return 10
-    -- TODO WESD v1 implement actual calculation, data storage, etc
-    -- https://lua-api.factorio.com/latest/classes/LuaRecipePrototype.html
-    -- for name, recipe in pairs(data.raw.recipe) do
-        
-    -- end
+ -- TODO WESD refactor away this file, should just be able to use dependency graph
+function MarketValue.GetValue(itemName, dependencyGraph)
+    local node = dependencyGraph:getNode(GraphNode.Types.ITEM, itemName)
+    return node:getValue(dependencyGraph)
 end
 
-function marketValue.GetTechnologyValue(technologyName)
-    -- TODO WESD v1 implement actual calculation, data storage, etc
-    return 10000;
+function MarketValue.GetTechnologyValue(technologyName, dependencyGraph)
+    -- https://lua-api.factorio.com/latest/classes/LuaTechnologyPrototype.html
+    local technology = prototypes.technology[technologyName]
+    local value = 0
+    local unitCount = technology.research_unit_count
+    for _, ingredient in pairs(technology.research_unit_ingredients) do
+        local node = dependencyGraph.getNode(GraphNode.Types.ITEM, ingredient.name)
+        local itemVal = node:getValue(dependencyGraph)
+        value = value + (itemVal * ingredient.amount * unitCount)
+    end
+    return value
 end
 
-return marketValue
+return MarketValue

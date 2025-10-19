@@ -1,5 +1,5 @@
 
-local inspect = require("src.util.inspect")
+local Inspect = require("src.util.inspect")
 
 local graphModule = require("src.control.graph.graph-node")
 local GraphNode = graphModule.GraphNode
@@ -52,6 +52,7 @@ function DependencyGraph:getNode(nodeType, nodeName)
 end
 
 -- adds a node of the given type/name to the dependency graph & calculates dependencies
+ -- TODO WESD integrate this into method above.
 function DependencyGraph:addNode(nodeType, nodeName)
     if (nodeType == GraphNode.Types.ITEM) then
         self:_addItemNode(nodeName)
@@ -134,6 +135,7 @@ function DependencyGraph:_addResourceNode(resourceName)
         fluidDependency.groupingType = GraphNodeGroup.Types.LEAF
         fluidDependency.leafNodeType = GraphNode.Types.ITEM
         fluidDependency.leafNodeName = mineable.required_fluid
+        fluidDependency.leafNodeScalar = mineable.fluid_amount
     else
         -- otherwise, assume we're able to mine without issue from the start of the game.
         dependencies.groupingType = GraphNodeGroup.Types.NONE
@@ -184,11 +186,44 @@ function DependencyGraph._getItemFluidDependencies(itemName, isFluid)
     end
     local recipes = prototypes.get_recipe_filtered{{filter = filter, elem_filters = {{filter = "name", name = itemName}}}}
     for _, recipe in pairs(recipes) do
-        local recipeDependency = GraphNodeGroup:new()
-        table.insert(dependencies.groupDependencies, recipeDependency)
-        recipeDependency.groupingType = GraphNodeGroup.Types.LEAF
-        recipeDependency.leafNodeType = GraphNode.Types.RECIPE
-        recipeDependency.leafNodeName = recipe.name
+        -- special case empty barrel recipes - these cause infinite loops. exclude them until we can handle said loops.
+        if not string.match(recipe.name, "^empty-.*-barrel$") then
+            local recipeDependency = GraphNodeGroup:new()
+            table.insert(dependencies.groupDependencies, recipeDependency)
+            recipeDependency.groupingType = GraphNodeGroup.Types.LEAF
+            recipeDependency.leafNodeType = GraphNode.Types.RECIPE
+            recipeDependency.leafNodeName = recipe.name
+
+            -- compute scalar for recipe to output product
+            -- TODO WESD handle if multiple products output the same item type (ex 1 guaranteed item, 50% for 1 bonus item. not in base game)
+            local product = nil
+            for _, p in ipairs(recipe.products) do
+                if p.name == itemName then
+                    product = p
+                    break
+                end
+            end
+            if (product == nil) then
+                error("MarketScience - unable to find recipe find product amount recipe=" .. recipe.name .. " product=" .. itemName)
+            end
+            
+            local amount = product.amount
+            -- if amount of output varies, take average
+            if product.amount_min ~= nil and product.amount_max ~= nil then
+                amount = (product.amount_min + product.amount_max) / 2
+            end
+            -- handle a percent chance to produce an output (ex uranium processing)
+            if product.probability ~= nil then
+                amount = amount * product.probability
+            end
+            -- if recipe has multiple products, divy up 75% of value between each output evenly, then add a flat 25%
+            local productCnt = #(recipe.products)
+            if productCnt > 1 then
+                amount = amount * ((0.75 / productCnt) + 0.25)
+            end
+            -- we need 1/X recipes to make a single product
+            recipeDependency.leafNodeScalar = 1 / amount
+        end
     end
 
     return dependencies;
@@ -219,8 +254,13 @@ function DependencyGraph:_addRecipeNode(recipeName)
             local dependency = GraphNodeGroup:new()
             table.insert(dependencies.groupDependencies, dependency)
             dependency.groupingType = GraphNodeGroup.Types.LEAF
-            dependency.leafNodeType = GraphNode.Types.ITEM
+            if ingredient.type == "item" then
+                dependency.leafNodeType = GraphNode.Types.ITEM
+            else
+                dependency.leafNodeType = GraphNode.Types.FLUID
+            end
             dependency.leafNodeName = ingredient.name
+            dependency.leafNodeScalar = ingredient.amount
         end
     end
 end

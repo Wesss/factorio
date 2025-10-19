@@ -1,30 +1,5 @@
--- local noise = require("noise")
-
--- local signals = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"])
--- signals.name = "market-signals"
--- signals.energy_source = {
---     type = "void"
--- }
--- signals.order = "zzz"
--- -- signals.draw_circuit_wires=false
--- signals.circuit_wire_max_distance = 1
--- signals.item_slot_count = 100
--- signals.flags = {
---     "not-repairable",
---     "not-on-map",
---     "not-blueprintable",
---     "not-deconstructable",
---     "no-copy-paste",
---     "not-selectable-in-game",
---     "hide-alt-info"
--- }
--- signals.alert_when_damaged = false
--- signals.selectable_in_game = false
--- signals.allow_copy_paste = false
--- signals.collision_mask = {}
 
 local market = {
-    -- TODO WESD v1 add signals showing market demand
     -- TODO WESD move wire attachment point to top right of market (currently just center, looks weird)
     type = "container",
     name = "science-market",
