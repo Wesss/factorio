@@ -66,13 +66,13 @@ function GraphNodeGroup:getValue(dependencyGraph)
     elseif groupingType == GraphNodeGroup.Types.AND then
         local sum = 0
         for _, dependency in ipairs(self.groupDependencies) do
-            sum = sum + dependency:getValue()
+            sum = sum + dependency:getValue(dependencyGraph)
         end
         return sum
     elseif groupingType == GraphNodeGroup.Types.OR then
         local min = nil
         for _, dependency in ipairs(self.groupDependencies) do
-            local val = dependency:getValue()
+            local val = dependency:getValue(dependencyGraph)
             if min == nil then
                 min = val
             end
@@ -82,19 +82,8 @@ function GraphNodeGroup:getValue(dependencyGraph)
         end
         return min
     elseif groupingType == GraphNodeGroup.Types.LEAF then
-    -- TODO WESD LAST debug crash that occurred here
-    -- Error while running event westest::on_nth_tick(60)
-    -- __westest__/src/control/graph/graph-node.lua:85: attempt to index local 'dependencyGraph' (a nil value)
-    -- stack traceback:
-    -- 	__westest__/src/control/graph/graph-node.lua:85: in function 'getValue'
-    -- 	__westest__/src/control/graph/graph-node.lua:75: in function 'getValue'
-    -- 	__westest__/src/control/graph/graph-node.lua:203: in function <__westest__/src/control/graph/graph-node.lua:176>
-    -- 	(...tail calls...)
-    -- 	__westest__/src/control/order-queue.lua:64: in function '_createNextOrder'
-    -- 	__westest__/src/control/order-queue.lua:34: in function 'getCurrentOrder'
-    -- 	__westest__/control.lua:32: in function <__westest__/control.lua:15>
         local graphNode = dependencyGraph:getNode(self.leafNodeType, self.leafNodeName)
-        return graphNode.leafNodeScalar * graphNode:getValue(dependencyGraph)
+        return self.leafNodeScalar * graphNode:getValue(dependencyGraph)
     else
         error("MarketSience - ERROR GraphNodeGroup:checkReachable unknown groupingType=" .. groupingType)
     end
@@ -211,7 +200,7 @@ function GraphNode:getValue(dependencyGraph)
         error("MarketSience - ERROR GraphNode:getValue unknown nodeType=" .. (nodeType or ""))
     end
 
-    local depValue = self.dependencies:getValue()
+    local depValue = self.dependencies:getValue(dependencyGraph)
     local res = depValue + nodeVal
     self.computedValue = res
     log("TODO WESD flag GraphNode:getValue type=" .. self.nodeType .. " name=" .. self.nodeName .. " value=" .. res)

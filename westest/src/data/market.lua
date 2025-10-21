@@ -56,9 +56,30 @@ local market = {
     },
     selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
     subgroup = "other",
-    circuit_wire_connection_point = circuit_connector_definitions["roboport"].points,
-    circuit_connector_sprites = circuit_connector_definitions["roboport"].sprites,
+    -- circuit_wire_connection_point = circuit_connector_definitions["roboport"].points,
+    -- circuit_connector_sprites = circuit_connector_definitions["roboport"].sprites,
     circuit_wire_max_distance = default_circuit_wire_max_distance,
+    circuit_connector_definitions =
+    {
+      {
+        connector_id = 1,
+        -- Style the connector, for example, to look like a red wire attachment.
+        back_patch = {
+          picture = "__core__/graphics/circuit-connector-back-patch.png",
+          tint = { r = 0.5, g = 0, b = 0, a = 0.5 }
+        },
+        point = {0.2, 0.2},
+      },
+      {
+        connector_id = 2,
+        -- Style the connector, for example, to look like a green wire attachment.
+        back_patch = {
+          picture = "__core__/graphics/circuit-connector-back-patch.png",
+          tint = { r = 0, g = 0.5, b = 0, a = 0.5 }
+        },
+        point = {0.2, -0.2},
+      },
+    },
 }
 
 data:extend({market})

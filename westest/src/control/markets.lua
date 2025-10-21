@@ -51,54 +51,31 @@ function Markets.checkMarkets(currentOrder, dependencyGraph)
 end
 
 -- updates the signals produced by each market
-function Markets.updateSignals(linkedCombinators, curOrder)
+function Markets.updateSignals(curOrder)
     for _, surface in pairs(game.surfaces) do
-        local markets = surface.find_entities_filtered({name = "science-market"})
-        for _, market in pairs(markets) do
-            -- TODO WESD can this crash? probably add more checks here
-            local combinator = game.get_entity_by_unit_number(linkedCombinators[market.unit_number])
+        local constcombs = surface.find_entities_filtered({name = "market-constant-combinator"})
+        for _, constcomb in pairs(constcombs) do
+            if constcomb.valid then
+                -- TODO WESD v1 set signals to be equal to current order. don't forget to clear slots before re-adding
+                local behavior = constcomb.get_or_create_control_behavior()
+                if (behavior.sections_count == 0) then behavior.add_section() end
+                local section = behavior.get_section(1)
 
-            -- TODO WESD v1 LAST update symbols based on order
-            local custom_signals = {
-                {signal = {type="item", name="iron-plate"}, count = 999}
-            }
-            combinator.control_behavior.parameters = custom_signals
+                -- looks like a low pri bug from factorio. need to set quality to normal.
+                local count = 1
+                local name = "coal"
+                local signalfilter = {}
+                signalfilter.type = "item"
+                signalfilter.name = name
+                signalfilter.quality = "normal" 
+                signalfilter.comparator = nil
+                local logisticfilter = {}
+                logisticfilter.value = signalfilter
+                logisticfilter.min = count
+                logisticfilter.max = count
+                section.set_slot(1, logisticfilter)
+            end
         end
-    end
-end
-
--- when market is built, hook up combinator to emit custom signals
-function Markets.onBuild(linkedCombinators, market)
-    local surface = market.surface
-    local pos = market.position
-    local force = market.force
-
-    -- Create a combinator for custom signals
-    local custom_combinator = surface.create_entity({
-        name = "constant-combinator",
-        position = {pos.x + 1, pos.y + 1},
-        force = force,
-        -- don't play built sound? haven't tested this
-        raise_built = false
-    })
-
-    -- link to market
-    linkedCombinators[market.unit_number] = custom_combinator.unit_number
-end
-
--- cleanup
-function Markets.onRemove(linkedCombinators, market)
-    local marketUnitNum = market.unit_number
-    if linkedCombinators[marketUnitNum] then
-        local combinator = game.get_entity_by_unit_number(linkedCombinators[marketUnitNum])
-
-        -- destroy combinator
-        if combinator then
-            combinator.destroy()
-        end
-
-        -- unlink
-        linkedCombinators[entity_id] = nil
     end
 end
 
