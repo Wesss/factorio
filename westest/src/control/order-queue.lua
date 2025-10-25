@@ -47,18 +47,25 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     end
     local itemsReachable = storage["OrderQueue.itemsReachable"]
 
-    -- pick a random item
-    local itemArray = {}
-    for i, _ in pairs(itemsReachable) do
-        table.insert(itemArray, i)
+    local selectedItem = nil
+    if (self.ordersCreated == 0) then
+        -- have first order be a lab
+        selectedItem = "lab"
+    else
+        -- pick a random item
+        local itemArray = {}
+        for i, _ in pairs(itemsReachable) do
+            table.insert(itemArray, i)
+        end
+        local idx = math.random(1, #itemArray)
+        selectedItem = itemArray[idx]
     end
-    local idx = math.random(1, #itemArray)
-    local selectedItem = itemArray[idx]
 
     -- calculate order size
     -- TODO WESD take into account science multiplier
-    local orderValMaxBase = 100
-    -- 1 / 50 means it atkes 50 orders for order size to first double
+    -- make first order be the cost of a single lab
+    local orderValMaxBase = MarketValue.GetValue("lab", dependencyGraph)
+    -- 1 / 50 means it takes 50 orders for order size to first double
     local scalingFactor = 1 / 50
     local orderValMax = orderValMaxBase * (1 + ((self.ordersCreated * scalingFactor) ^ 1.5))
     local itemValue = MarketValue.GetValue(selectedItem, dependencyGraph)

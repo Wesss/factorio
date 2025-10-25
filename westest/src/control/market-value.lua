@@ -6,7 +6,7 @@ local GraphNodeGroup = graphModule.GraphNodeGroup
 
 local MarketValue = {}
 
- -- TODO WESD refactor away this file, should just be able to use dependency graph
+ -- TODO WESD refactor away this file? should just be able to use dependency graph
 function MarketValue.GetValue(itemName, dependencyGraph)
     local node = dependencyGraph:getNode(GraphNode.Types.ITEM, itemName)
     return node:getValue(dependencyGraph)
@@ -18,7 +18,7 @@ function MarketValue.GetTechnologyValue(technologyName, dependencyGraph)
     local value = 0
     local unitCount = technology.research_unit_count
     for _, ingredient in pairs(technology.research_unit_ingredients) do
-        local node = dependencyGraph.getNode(GraphNode.Types.ITEM, ingredient.name)
+        local node = dependencyGraph:getNode(GraphNode.Types.ITEM, ingredient.name)
         local itemVal = node:getValue(dependencyGraph)
         value = value + (itemVal * ingredient.amount * unitCount)
     end

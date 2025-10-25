@@ -53,27 +53,32 @@ end
 -- updates the signals produced by each market
 function Markets.updateSignals(curOrder)
     for _, surface in pairs(game.surfaces) do
-        local constcombs = surface.find_entities_filtered({name = "market-constant-combinator"})
+        local constcombs = surface.find_entities_filtered({name = "market-combinator"})
         for _, constcomb in pairs(constcombs) do
             if constcomb.valid then
-                -- TODO WESD v1 set signals to be equal to current order. don't forget to clear slots before re-adding
                 local behavior = constcomb.get_or_create_control_behavior()
-                if (behavior.sections_count == 0) then behavior.add_section() end
+                while behavior.sections_count > 0 do
+                    behavior.remove_section(behavior.sections_count)
+                end
+
+                behavior.add_section()
                 local section = behavior.get_section(1)
 
                 -- looks like a low pri bug from factorio. need to set quality to normal.
-                local count = 1
-                local name = "coal"
-                local signalfilter = {}
-                signalfilter.type = "item"
-                signalfilter.name = name
-                signalfilter.quality = "normal" 
-                signalfilter.comparator = nil
-                local logisticfilter = {}
-                logisticfilter.value = signalfilter
-                logisticfilter.min = count
-                logisticfilter.max = count
-                section.set_slot(1, logisticfilter)
+                for i, lineItem in pairs(curOrder.lineItems) do
+                    local count = lineItem:remaining()
+                    local name = lineItem.itemName
+                    local signalfilter = {}
+                    signalfilter.type = "item"
+                    signalfilter.name = name
+                    signalfilter.quality = "normal"
+                    signalfilter.comparator = nil
+                    local logisticfilter = {}
+                    logisticfilter.value = signalfilter
+                    logisticfilter.min = count
+                    logisticfilter.max = count
+                    section.set_slot(i, logisticfilter)
+                end
             end
         end
     end

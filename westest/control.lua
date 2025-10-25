@@ -1,7 +1,7 @@
 
 local ticksPerCheck = 60
 
-local inspect = require("src.util.inspect")
+local Inspect = require("src.util.inspect")
 local TestRunner = require("test.test-runner")
 
 require("src.control.disable-labs-message")

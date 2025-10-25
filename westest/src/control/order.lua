@@ -60,7 +60,6 @@ function Order:new()
     local instance = {}
     setmetatable(instance, Order)
 
-    instance.storageState = {}
     instance.lineItems = {}
 
     return instance
@@ -69,12 +68,12 @@ end
 -- fulfils this order as much as possible with the given items
 function Order:fulfill(inventory, researchValueRemaining, dependencyGraph)
     local totalValueFulfilled = 0
-    for a, lineItem in pairs(self.lineItems) do
+    for _, lineItem in pairs(self.lineItems) do
         local valueFulfilled = lineItem:fulfill(inventory, researchValueRemaining, dependencyGraph)
         totalValueFulfilled = totalValueFulfilled + valueFulfilled
         researchValueRemaining = math.max(0, researchValueRemaining - valueFulfilled)
     end
-    return totalValueFulfilleds
+    return totalValueFulfilled
 end
 
 -- returns true if this order needs no more items. false if more items can still be fulfilled.
