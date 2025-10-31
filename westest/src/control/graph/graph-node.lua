@@ -3,7 +3,6 @@ local Inspect = require("src.util.inspect")
 
 local GraphNodeGroup = {}
 GraphNodeGroup.__index = GraphNodeGroup
-script.register_metatable("GraphNodeGroup", GraphNodeGroup)
 
 -- enum of node types for describing/aggregating dependencies
 GraphNodeGroup.Types = {
@@ -92,7 +91,6 @@ end
  -- TODO WESD split this into its own file
 local GraphNode = {}
 GraphNode.__index = GraphNode
-script.register_metatable("GraphNode", GraphNode)
 
 -- enum of node types for describing/aggregating dependencies
 GraphNode.Types = {
@@ -185,8 +183,9 @@ function GraphNode:getValue(dependencyGraph)
     elseif (nodeType == GraphNode.Types.FLUID) then
         -- no intrinsic value, value purely from dependencies
     elseif (nodeType == GraphNode.Types.RECIPE) then
-        -- some value via complexity of assembling the recipe
-        nodeVal = 0.1
+        -- add value equal to crafting time
+        local recipe = prototypes.recipe[self.nodeName]
+        nodeVal = recipe.energy * (1.0 / 5.0)
     elseif (nodeType == GraphNode.Types.TECHNOLOGY) then
         -- no intrinsic value, just needs an unlock
     elseif (nodeType == GraphNode.Types.RESOURCE) then
@@ -206,6 +205,9 @@ function GraphNode:getValue(dependencyGraph)
     log("TODO WESD flag GraphNode:getValue type=" .. self.nodeType .. " name=" .. self.nodeName .. " value=" .. res)
     return res
 end
+
+script.register_metatable("MarketScience-GraphNode", GraphNode)
+script.register_metatable("MarketScience-GraphNodeGroup", GraphNodeGroup)
 
 return {
     GraphNode = GraphNode,

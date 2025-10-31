@@ -11,8 +11,6 @@ local MarketValue = require("src.control.market-value")
 -- Handles generation and flow of orders for markets to fulfil
 local OrderQueue = {}
 OrderQueue.__index = OrderQueue
---https://lua-api.factorio.com/latest/classes/LuaBootstrap.html#register_metatable
-script.register_metatable("OrderQueue", OrderQueue)
 
 function OrderQueue:new()
     local instance = {}
@@ -62,21 +60,22 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     end
 
     -- calculate order size
-    -- TODO WESD take into account science multiplier
+    -- TODO WESD v2 take into account science multiplier
     -- make first order be the cost of a single lab
     local orderValMaxBase = MarketValue.GetValue("lab", dependencyGraph)
     -- 1 / 50 means it takes 50 orders for order size to first double
     local scalingFactor = 1 / 50
     local orderValMax = orderValMaxBase * (1 + ((self.ordersCreated * scalingFactor) ^ 1.5))
     local itemValue = MarketValue.GetValue(selectedItem, dependencyGraph)
-    -- TODO WESD snap this to a 'nice' number
+    -- TODO WESD v2 snap this to a 'nice' number
+    -- TODO WESD v2 scale to lower numbers for cheaper items.
     local selectedCnt = math.floor(orderValMax / itemValue)
 
     local lineItem = LineItem:new(selectedItem, selectedCnt)
     table.insert(newOrder.lineItems, lineItem)
 
     self.ordersCreated = self.ordersCreated + 1
-    -- TODO WESD play a sound
+    -- TODO WESD v2 play a sound
     return newOrder
 end
 
@@ -152,5 +151,8 @@ function OrderQueue._initItemsToCheck()
 
     return itemsToCheck
 end
+
+--https://lua-api.factorio.com/latest/classes/LuaBootstrap.html#register_metatable
+script.register_metatable("MarketScience-OrderQueue", OrderQueue)
 
 return OrderQueue

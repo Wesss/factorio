@@ -9,6 +9,7 @@ local GraphNodeGroup = graphModule.GraphNodeGroup
 local DependencyGraph = {}
 DependencyGraph.__index = DependencyGraph
 
+
 function DependencyGraph.new()
     local instance = {}
     setmetatable(instance, DependencyGraph)
@@ -280,5 +281,7 @@ function DependencyGraph:_addTechnologyNode(technologyName)
     -- as such, we don't bother with adding any dependencies to the techs themselves
     dependencies.groupingType = GraphNodeGroup.Types.NONE
 end
+
+script.register_metatable("MarketScience-DependencyGraph", DependencyGraph)
 
 return DependencyGraph

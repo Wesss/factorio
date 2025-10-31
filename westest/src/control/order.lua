@@ -4,7 +4,6 @@ local inspect = require("src.util.inspect")
 -- Represents an item and a quantity of it
 local LineItem = {}
 LineItem.__index = LineItem
-script.register_metatable("LineItem", LineItem)
 
 function LineItem:new(itemName, amount)
     local instance = {}
@@ -54,7 +53,6 @@ end
 -- Represents a batch of items that need to be filled to progress science
 local Order = {}
 Order.__index = Order
-script.register_metatable("Order", Order)
 
 function Order:new()
     local instance = {}
@@ -85,6 +83,9 @@ function Order:isFulfilled()
     end
     return true
 end
+
+script.register_metatable("MarketScience-LineItem", LineItem)
+script.register_metatable("MarketScience-Order", Order)
 
 return {
     Order = Order,
