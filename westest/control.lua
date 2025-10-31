@@ -27,6 +27,8 @@ script.on_nth_tick(60, function(event)
     -- -- check markets
     local curOrder = orderQueue:getCurrentOrder(dependencyGraph)
     Markets.checkMarkets(curOrder, dependencyGraph)
+    -- remove fulfilled order and replace with next before displaying gui/signals
+    curOrder = orderQueue:getCurrentOrder(dependencyGraph)
     OrdersGUI.updateOrdersGUI(orderQueue)
     Markets.updateSignals(curOrder)
 

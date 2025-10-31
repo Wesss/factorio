@@ -9,7 +9,7 @@ local GraphNodeGroup = graphModule.GraphNodeGroup
 local DependencyGraph = {}
 DependencyGraph.__index = DependencyGraph
 
-function DependencyGraph:new()
+function DependencyGraph.new()
     local instance = {}
     setmetatable(instance, DependencyGraph)
 

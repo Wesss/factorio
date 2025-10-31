@@ -76,6 +76,7 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     table.insert(newOrder.lineItems, lineItem)
 
     self.ordersCreated = self.ordersCreated + 1
+    -- TODO WESD play a sound
     return newOrder
 end
 

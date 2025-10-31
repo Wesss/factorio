@@ -17,7 +17,7 @@ GraphNodeGroup.Types = {
     OR = "OR"
 }
 
-function GraphNodeGroup:new(type)
+function GraphNodeGroup.new(type)
     local instance = {}
     setmetatable(instance, GraphNodeGroup)
 
@@ -108,7 +108,7 @@ GraphNode.Types = {
     RESOURCE = "RESOURCE"
 }
 
-function GraphNode:new(nodeType, nodeName)
+function GraphNode.new(nodeType, nodeName)
     local instance = {}
     setmetatable(instance, GraphNode)
 
