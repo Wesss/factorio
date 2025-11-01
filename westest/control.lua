@@ -14,7 +14,7 @@ local DependencyGraph = require("src.control.graph.dependency-graph")
 -- main loop
 script.on_nth_tick(60, function(event)
     -- TESTING
-    TestRunner.run()
+    -- TestRunner.run()
 
     -- load state
     local orderQueue = storage["OrderQueue"]

@@ -113,7 +113,15 @@ function OrderQueue._checkReachable(dependencyGraph, newResearch)
 
     for itemName, _ in pairs(itemsToCheck) do
         local graphNode = dependencyGraph:getNode(GraphNode.Types.ITEM, itemName)
-        local isReachable = graphNode:checkReachable(dependencyGraph)
+        
+        -- TODO WESD unwind safe pcall?
+        local ok, result = pcall(function() return graphNode:checkReachable(dependencyGraph) end)
+        if not ok then
+            -- test call ran into an error
+            error("error checking if item is reachable. item=" .. itemName .. "msg=" .. result)
+        end
+        local isReachable = result
+        
         if isReachable then
             itemsToCheck[itemName] = nil
             itemsReachable[itemName] = true
