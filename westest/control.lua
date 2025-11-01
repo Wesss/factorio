@@ -13,6 +13,9 @@ local DependencyGraph = require("src.control.graph.dependency-graph")
 
 -- main loop
 script.on_nth_tick(60, function(event)
+    -- TESTING
+    TestRunner.run()
+
     -- load state
     local orderQueue = storage["OrderQueue"]
     if orderQueue == nil then
@@ -24,16 +27,13 @@ script.on_nth_tick(60, function(event)
         dependencyGraph = DependencyGraph:new()
     end
 
-    -- -- check markets
+    -- check markets
     local curOrder = orderQueue:getCurrentOrder(dependencyGraph)
     Markets.checkMarkets(curOrder, dependencyGraph)
     -- remove fulfilled order and replace with next before displaying gui/signals
     curOrder = orderQueue:getCurrentOrder(dependencyGraph)
     OrdersGUI.updateOrdersGUI(orderQueue)
     Markets.updateSignals(curOrder)
-
-    -- TESTING
-    -- TestRunner.run({dependencyGraph = dependencyGraph})
     
     -- persist state
     storage["OrderQueue"] = orderQueue

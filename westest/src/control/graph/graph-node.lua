@@ -134,8 +134,9 @@ function GraphNode:checkReachable(dependencyGraph)
     local nodeType = self.nodeType
     if (nodeType == GraphNode.Types.ITEM) then
         -- TODO WESD handle this generically, any item that doesn't come from a minable source shouldn't be reachable
+        -- note: I think this is handled properly already as it isn't a resource. I typo'd self.nodename but wood was still never reachable.
         -- special case wood, its not a minable resource
-        if self.nodename == "wood" then res = false end
+        if self.nodeName == "wood" then res = false end
         -- otherwise just check dependencies
     elseif (nodeType == GraphNode.Types.FLUID) then
         -- just check dependencies
@@ -144,6 +145,12 @@ function GraphNode:checkReachable(dependencyGraph)
         local force = game.forces["player"]
         local recipe = force.recipes[self.nodeName]
         if not recipe.enabled then
+            res = false
+        end
+
+        -- TODO WESD handle loop resolution generically
+        -- special case recursive recipes, just don't consider them
+        if self.nodeName == "coal-liquefaction" or self.nodeName == "kovarex-enrichment-process" then
             res = false
         end
     elseif (nodeType == GraphNode.Types.TECHNOLOGY) then
@@ -175,6 +182,7 @@ function GraphNode:getValue(dependencyGraph)
     if self.computedValue ~= nil then
         return self.computedValue
     end
+    log("TODO WESD flag GraphNode:getValue START type=" .. self.nodeType .. " name=" .. self.nodeName)
 
     local nodeVal = 0
     local nodeType = self.nodeType
@@ -185,7 +193,15 @@ function GraphNode:getValue(dependencyGraph)
     elseif (nodeType == GraphNode.Types.RECIPE) then
         -- add value equal to crafting time
         local recipe = prototypes.recipe[self.nodeName]
+        log("TODO WESD flag GraphNode:getValue recipe value check energy=" .. recipe.energy)
         nodeVal = recipe.energy * (1.0 / 5.0)
+        
+        -- TODO WESD handle loop resolution generically
+        -- special case recursive recipes, just don't consider them
+        if self.nodeName == "coal-liquefaction" or self.nodeName == "kovarex-enrichment-process" then
+            self.computedValue = 9999
+            return self.computedValue
+        end
     elseif (nodeType == GraphNode.Types.TECHNOLOGY) then
         -- no intrinsic value, just needs an unlock
     elseif (nodeType == GraphNode.Types.RESOURCE) then
@@ -202,7 +218,7 @@ function GraphNode:getValue(dependencyGraph)
     local depValue = self.dependencies:getValue(dependencyGraph)
     local res = depValue + nodeVal
     self.computedValue = res
-    log("TODO WESD flag GraphNode:getValue type=" .. self.nodeType .. " name=" .. self.nodeName .. " value=" .. res)
+    log("TODO WESD flag GraphNode:getValue END type=" .. self.nodeType .. " name=" .. self.nodeName .. " value=" .. res)
     return res
 end
 

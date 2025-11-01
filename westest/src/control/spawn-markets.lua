@@ -7,7 +7,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
     local area = event.area
     -- 1 in X change to spawn a market per chunk
     -- TODO WESD turn market frequency into a setting
-    if math.random(1, 64) == 1 then
+    if math.random(1, 32) == 1 then
         -- pick random positions until the market can be placed. after X attempts, give up and don't place a market.
         for _ = 1, 50 do
             -- TODO WESD guarantee that 1 market is in starting area. then decrease spawn chance?

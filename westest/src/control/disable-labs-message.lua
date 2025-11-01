@@ -1,10 +1,12 @@
 
 -- When player opens lab, print message that science is disabled
 script.on_event(defines.events.on_gui_opened, function(event)
-    -- TODO WESD also display message on placing a lab?
     if event.gui_type == defines.gui_type.entity then
         if event.entity.type == "lab" then
             game.get_player(event.player_index).print({"science-restriction"}, {r = 1})
         end
     end
 end)
+
+ -- TODO WESD v2 also print message when a lab is placed
+ 

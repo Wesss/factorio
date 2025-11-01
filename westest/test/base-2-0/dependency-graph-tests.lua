@@ -227,15 +227,18 @@ function Tests.addWaterFluid()
                 groupingType = GraphNodeGroup.Types.LEAF,
                 leafNodeName = "water",
                 leafNodeType = GraphNode.Types.RESOURCE,
-            }, {
-                groupDependencies = {},
-                groupingType = GraphNodeGroup.Types.LEAF,
-                leafNodeName = "empty-water-barrel",
-                leafNodeType = GraphNode.Types.RECIPE,
-            } },
+            },
+            -- {
+            --     groupDependencies = {},
+            --     groupingType = GraphNodeGroup.Types.LEAF,
+            --     leafNodeName = "empty-water-barrel",
+            --     leafNodeType = GraphNode.Types.RECIPE,
+            -- }
+            },
         },
     }
 
+    -- log(Inspect.inspect(dependencyGraph.fluids["water"]))
     return TestUtil.GraphNodeMatches(expected, dependencyGraph.fluids["water"])
 end
 
@@ -293,12 +296,14 @@ function Tests.addCrudeOilFluid()
                 groupingType = GraphNodeGroup.Types.LEAF,
                 leafNodeName = "crude-oil",
                 leafNodeType = GraphNode.Types.RESOURCE,
-            }, {
-                groupDependencies = {},
-                groupingType = GraphNodeGroup.Types.LEAF,
-                leafNodeName = "empty-crude-oil-barrel",
-                leafNodeType = GraphNode.Types.RECIPE,
-            } },
+            },
+            -- {
+            --     groupDependencies = {},
+            --     groupingType = GraphNodeGroup.Types.LEAF,
+            --     leafNodeName = "empty-crude-oil-barrel",
+            --     leafNodeType = GraphNode.Types.RECIPE,
+            -- }
+            },
         },
     }
 
@@ -321,12 +326,14 @@ function Tests.addLubricant()
                 groupingType = GraphNodeGroup.Types.LEAF,
                 leafNodeName = "lubricant",
                 leafNodeType = GraphNode.Types.RECIPE,
-            }, {
-                groupDependencies = {},
-                groupingType = GraphNodeGroup.Types.LEAF,
-                leafNodeName = "empty-lubricant-barrel",
-                leafNodeType = GraphNode.Types.RECIPE,
-            } },
+            },
+            -- {
+            --     groupDependencies = {},
+            --     groupingType = GraphNodeGroup.Types.LEAF,
+            --     leafNodeName = "empty-lubricant-barrel",
+            --     leafNodeType = GraphNode.Types.RECIPE,
+            -- }
+            },
         },
     }
 

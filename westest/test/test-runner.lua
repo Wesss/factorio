@@ -1,15 +1,23 @@
 
 local TestRunner = {}
 
-local Tests = require("test.base-2-0.dependency-graph-tests")
+local Tests1 = require("test.base-2-0.dependency-graph-tests")
+local Tests2 = require("test.base-2-0.market-value-tests")
 
 -- given various state, run tests as needed. this is meant to be edited to swap out test suites
 function TestRunner.run()
-    -- run all tests
-    TestRunner.runTests(Tests)
+    local tests = {}
+    for key, value in pairs(Tests1) do
+        tests[key] = value
+    end
+    for key, value in pairs(Tests2) do
+        tests[key] = value
+    end
 
+    -- run all tests
+    TestRunner.runTests(tests)
     -- run specific test(s)
-    -- TestRunner.runTests({test = Tests.addIronPlateItem})
+    -- TestRunner.runTests({test = tests.addWaterFluid})
 end
 
 --- Runs a suite of tests and logs the results.
