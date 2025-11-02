@@ -36,4 +36,7 @@ function Tests.marketValueHeavyOil()
     return {success = true}
 end
 
+ -- TODO WESD add uranium test (goes through uranium mining, which need fluid mining)
+ -- TODO WESD sulfur research test for check reachable (uranium ore is reachable before it should be)
+
 return Tests

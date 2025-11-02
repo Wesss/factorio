@@ -5,13 +5,15 @@ local inspect = require("src.util.inspect")
 script.on_event(defines.events.on_chunk_generated, function(event)
     local surface = event.surface
     local area = event.area
+    local isSpawnArea = area.left_top.x <= 5
+        and area.right_bottom.x > 5
+        and area.left_top.y <= 5
+        and area.right_bottom.y > 5
     -- 1 in X change to spawn a market per chunk
     -- TODO WESD turn market frequency into a setting
-    if math.random(1, 32) == 1 then
+    if math.random(1, 32) == 1 or isSpawnArea then
         -- pick random positions until the market can be placed. after X attempts, give up and don't place a market.
         for _ = 1, 50 do
-            -- TODO WESD guarantee that 1 market is in starting area. then decrease spawn chance?
-            -- TODO WESD also guarantee that only exactly 1 market spawns in the starting area?
             local x = math.random(area.left_top.x, area.right_bottom.x)
             local y = math.random(area.left_top.y, area.right_bottom.y)
 

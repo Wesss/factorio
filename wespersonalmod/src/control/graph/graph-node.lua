@@ -29,30 +29,42 @@ function GraphNodeGroup.new(type)
     -- relative number of this dependency needed to satisfy node. ex. ingredients/products per recipe.
     instance.leafNodeScalar = 1
 
+    -- for tracking this in debug logs
+    instance.debugID = math.random(0, 999999)
+
     return instance
 end
 
 function GraphNodeGroup:checkReachable(dependencyGraph)
+    log("TODO WESD GraphNodeGroup:checkReachable START debugid=" .. self.debugID .. " group=" .. Inspect.inspect(self))
     local groupingType = self.groupingType
     if groupingType == GraphNodeGroup.Types.NONE then
+        log("TODO WESD GraphNodeGroup:checkReachable END none case debugid=" .. self.debugID .. " res=true")
         return true
     elseif groupingType == GraphNodeGroup.Types.AND then
         for _, dependency in ipairs(self.groupDependencies) do
             if not dependency:checkReachable(dependencyGraph) then
+                log("TODO WESD GraphNodeGroup:checkReachable END and case debugid=" .. self.debugID .. " res=false")
                 return false
             end
         end
+        log("TODO WESD GraphNodeGroup:checkReachable END and case debugid=" .. self.debugID .. " res=true")
         return true
     elseif groupingType == GraphNodeGroup.Types.OR then
         for _, dependency in ipairs(self.groupDependencies) do
             if dependency:checkReachable(dependencyGraph) then
+                log("TODO WESD GraphNodeGroup:checkReachable END or case debugid=" .. self.debugID .. " res=true")
                 return true
             end
         end
+        log("TODO WESD GraphNodeGroup:checkReachable END or case debugid=" .. self.debugID .. " res=false")
         return false
     elseif groupingType == GraphNodeGroup.Types.LEAF then
         local graphNode = dependencyGraph:getNode(self.leafNodeType, self.leafNodeName)
-        return graphNode:checkReachable(dependencyGraph)
+        -- return graphNode:checkReachable(dependencyGraph)
+        local res = graphNode:checkReachable(dependencyGraph)
+        log("TODO WESD GraphNodeGroup:checkReachable END leaf case debugid=" .. self.debugID .. " res=" .. tostring(res))
+        return res
     else
         error("MarketSience - ERROR GraphNodeGroup:checkReachable unknown groupingType=" .. groupingType)
     end
@@ -129,6 +141,8 @@ function GraphNode:checkReachable(dependencyGraph)
     if self.foundReachable then
         return true
     end
+    -- TODO WESD debugging
+    log("TODO WESD GraphNode:checkReachable START type=" .. self.nodeType .. " name=" .. self.nodeName)
 
     local res = nil
     local nodeType = self.nodeType
@@ -167,6 +181,8 @@ function GraphNode:checkReachable(dependencyGraph)
     end
 
     if res ~= nil then
+        -- TODO WESD debugging
+        log("TODO WESD GraphNode:checkReachable END (no deps) type=" .. self.nodeType .. " name=" .. self.nodeName .. " res=" .. tostring(res))
         self.foundReachable = res
         return res
     end
@@ -174,6 +190,7 @@ function GraphNode:checkReachable(dependencyGraph)
     -- check dependencies
     local res = self.dependencies:checkReachable(dependencyGraph)
     self.foundReachable = res
+    log("TODO WESD GraphNode:checkReachable END type=" .. self.nodeType .. " name=" .. self.nodeName .. " res=" .. tostring(res))
     return res
 end
 

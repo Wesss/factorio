@@ -14,7 +14,7 @@ function MarketValue.GetValue(itemName, dependencyGraph)
     local ok, result = pcall(function() return node:getValue(dependencyGraph) end)
     if not ok then
         -- test call ran into an error
-        error("error getting market value. item=" .. itemName .. "msg=" .. result)
+        error("error getting market value. item=" .. itemName .. " msg=" .. result)
     end
     return result
 end

@@ -67,9 +67,13 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     local scalingFactor = 1 / 50
     local orderValMax = orderValMaxBase * (1 + ((self.ordersCreated * scalingFactor) ^ 1.5))
     local itemValue = MarketValue.GetValue(selectedItem, dependencyGraph)
+    
+    local selectedCnt = orderValMax / itemValue
+    -- avoid huge counts of cheaper items.
+    selectedCnt = selectedCnt ^ 0.9
     -- TODO WESD v2 snap this to a 'nice' number
-    -- TODO WESD v2 scale to lower numbers for cheaper items.
-    local selectedCnt = math.floor(orderValMax / itemValue)
+    selectedCnt = math.floor(selectedCnt)
+    log("TODO WESD ordersize 1 item=" .. selectedItem .. " orderNum=" .. self.ordersCreated .. " scalingval=" .. (1 + ((self.ordersCreated * scalingFactor) ^ 1.5)) .. "initCnt=" .. (orderValMax / itemValue) .. " selectedCnt=" .. selectedCnt)
 
     local lineItem = LineItem:new(selectedItem, selectedCnt)
     table.insert(newOrder.lineItems, lineItem)
@@ -118,7 +122,7 @@ function OrderQueue._checkReachable(dependencyGraph, newResearch)
         local ok, result = pcall(function() return graphNode:checkReachable(dependencyGraph) end)
         if not ok then
             -- test call ran into an error
-            error("error checking if item is reachable. item=" .. itemName .. "msg=" .. result)
+            error("error checking if item is reachable. item=" .. itemName .. " msg=" .. result)
         end
         local isReachable = result
         
@@ -129,7 +133,7 @@ function OrderQueue._checkReachable(dependencyGraph, newResearch)
     end
 
     -- save state
-    log("TODO WESD OrderQueue._checkReachable " .. Inspect.inspect({itemsToCheck = itemsToCheck, itemsReachable = itemsReachable}))
+    log("TODO WESD OrderQueue._checkReachable newResearch=" .. (newResearch or {name=""}).name .. " checkstate=" .. Inspect.inspect({itemsToCheck = itemsToCheck, itemsReachable = itemsReachable}))
     storage["OrderQueue.itemsToCheck"] = itemsToCheck
     storage["OrderQueue.itemsReachable"] = itemsReachable
 end
@@ -153,7 +157,9 @@ function OrderQueue._initItemsToCheck()
     local resources = prototypes.get_entity_filtered({{filter = "type", type = "resource"}})
     for _, resource in pairs(resources) do
         for _, product in ipairs(resource.mineable_properties.products) do
-            itemsToCheck[product.name] = true
+            if product.type == "item" then
+                itemsToCheck[product.name] = true
+            end
         end
     end
 

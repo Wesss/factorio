@@ -350,7 +350,7 @@ function Tests.addUraniumResource()
         nodeName = "uranium-ore",
         nodeType = GraphNode.Types.RESOURCE,
         dependencies = {
-            groupingType = GraphNodeGroup.Types.OR,
+            groupingType = GraphNodeGroup.Types.AND,
             groupDependencies = { {
                 groupDependencies = {},
                 groupingType = GraphNodeGroup.Types.LEAF,

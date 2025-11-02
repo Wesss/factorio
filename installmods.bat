@@ -5,4 +5,4 @@ REM /MT:8: Creates multi-threaded copies with 8 threads for faster performance (
 REM /R:3: Retries failed copies 3 times.
 REM /W:10: Waits 10 seconds between retries.
 
-robocopy "./westest" "C:/Users/wesle/AppData/Roaming/Factorio/mods/westest" /MIR /DCOPY:T /MT:8 /R:3 /W:10
+robocopy "./wespersonalmod" "C:/Users/wesle/AppData/Roaming/Factorio/mods/wespersonalmod" /MIR /DCOPY:T /MT:8 /R:3 /W:10

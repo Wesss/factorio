@@ -29,12 +29,11 @@ function Markets.checkMarkets(currentOrder, dependencyGraph)
             fulfilledValue = fulfilledValue + valueFulfilled
             
             -- print value floating text over the market
-            -- TODO WESD v2 bug - printed value needs to be per market. currently values accumulate
-            local roundedValue = math.floor(fulfilledValue + 0.5);
+            local roundedValue = math.floor(valueFulfilled + 0.5);
             if roundedValue > 0 then
                 for _, player in pairs(force.players) do
                     player.create_local_flying_text({
-                        text = "+" .. math.floor(fulfilledValue + 0.5),
+                        text = "+" .. math.floor(valueFulfilled + 0.5),
                         position = market.position,
                         surface = market.surface,
                         color = {

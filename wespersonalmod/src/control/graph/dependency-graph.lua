@@ -121,7 +121,7 @@ function DependencyGraph:_addResourceNode(resourceName)
         dependencies.leafNodeName = "oil-gathering"
     elseif (mineable.required_fluid ~= nil) then
         -- fluid mining requires technology unlock + access to required fluid
-        dependencies.groupingType = GraphNodeGroup.Types.OR
+        dependencies.groupingType = GraphNodeGroup.Types.AND
         -- TODO WESD "uranium-mining" for mining with fluid input is hardcoded here.
         -- rework to dynamically figure out if fluid mining is available.
         local techDependency = GraphNodeGroup:new()
@@ -134,7 +134,7 @@ function DependencyGraph:_addResourceNode(resourceName)
         local fluidDependency = GraphNodeGroup:new()
         table.insert(dependencies.groupDependencies, fluidDependency)
         fluidDependency.groupingType = GraphNodeGroup.Types.LEAF
-        fluidDependency.leafNodeType = GraphNode.Types.ITEM
+        fluidDependency.leafNodeType = GraphNode.Types.FLUID
         fluidDependency.leafNodeName = mineable.required_fluid
         fluidDependency.leafNodeScalar = mineable.fluid_amount
     else
