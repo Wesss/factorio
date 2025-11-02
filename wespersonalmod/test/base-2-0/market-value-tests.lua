@@ -36,7 +36,38 @@ function Tests.marketValueHeavyOil()
     return {success = true}
 end
 
- -- TODO WESD add uranium test (goes through uranium mining, which need fluid mining)
- -- TODO WESD sulfur research test for check reachable (uranium ore is reachable before it should be)
+ -- TODO WESD add uranium ore test (goes through uranium mining, which need fluid mining)
+
+-- requires mining with fluid
+function Tests.marketValueUraniumOre()
+    local dependencyGraph = DependencyGraph.new()
+
+    -- testing
+    -- dependencyGraph:getNode(GraphNode.Types.ITEM, "uranium-ore")
+    -- log(Inspect.inspect(dependencyGraph))
+
+    local actual = MarketValue.GetValue("uranium-ore", dependencyGraph)
+
+    if actual <= 0 then
+        return {success = false, message = "Item value <= 0. value=" .. actual}
+    end
+    return {success = true}
+end
+
+ -- TODO WESD LAST bug, unsure of issue atm
+function Tests.marketValueUranium238()
+    local dependencyGraph = DependencyGraph.new()
+
+    -- testing
+    dependencyGraph:getNode(GraphNode.Types.ITEM, "uranium-238")
+    log(Inspect.inspect(dependencyGraph))
+
+    local actual = MarketValue.GetValue("uranium-238", dependencyGraph)
+
+    if actual <= 0 then
+        return {success = false, message = "Item value <= 0. value=" .. actual}
+    end
+    return {success = true}
+end
 
 return Tests

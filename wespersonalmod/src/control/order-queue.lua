@@ -70,10 +70,10 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     
     local selectedCnt = orderValMax / itemValue
     -- avoid huge counts of cheaper items.
-    selectedCnt = selectedCnt ^ 0.9
+    selectedCnt = logScale(selectedCnt)
     -- TODO WESD v2 snap this to a 'nice' number
     selectedCnt = math.floor(selectedCnt)
-    log("TODO WESD ordersize 1 item=" .. selectedItem .. " orderNum=" .. self.ordersCreated .. " scalingval=" .. (1 + ((self.ordersCreated * scalingFactor) ^ 1.5)) .. "initCnt=" .. (orderValMax / itemValue) .. " selectedCnt=" .. selectedCnt)
+    log("TODO WESD ordersize 1 item=" .. selectedItem .. " orderNum=" .. self.ordersCreated .. " scalingval=" .. (1 + ((self.ordersCreated * scalingFactor) ^ 1.5)) .. " orderValMax=" .. orderValMax .. " initCnt=" .. (orderValMax / itemValue) .. " selectedCnt=" .. selectedCnt)
 
     local lineItem = LineItem:new(selectedItem, selectedCnt)
     table.insert(newOrder.lineItems, lineItem)
@@ -81,6 +81,20 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     self.ordersCreated = self.ordersCreated + 1
     -- TODO WESD v2 play a sound
     return newOrder
+end
+
+-- todo wesd doc/integrate this
+local LOG_BASE = math.log(1.01)
+-- https://www.desmos.com/calculator/mjlgsmwpaf
+-- linear to 100, then a really slow logarithmic growth
+function logScale(x)
+    if x < 100 then return x end
+    local argument = x + 13
+
+    -- Apply the change of base formula and subtract 375
+    local result = (math.log(argument) / LOG_BASE) - 375
+    
+    return result
 end
 
 -- react to a finished research (https://lua-api.factorio.com/latest/classes/LuaTechnology.html)

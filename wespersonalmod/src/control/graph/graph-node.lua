@@ -164,7 +164,7 @@ function GraphNode:checkReachable(dependencyGraph)
 
         -- TODO WESD handle loop resolution generically
         -- special case recursive recipes, just don't consider them
-        if self.nodeName == "coal-liquefaction" or self.nodeName == "kovarex-enrichment-process" then
+        if self.nodeName == "coal-liquefaction" or self.nodeName == "kovarex-enrichment-process" or self.nodeName == "nuclear-fuel-reprocessing" then
             res = false
         end
     elseif (nodeType == GraphNode.Types.TECHNOLOGY) then
@@ -215,7 +215,7 @@ function GraphNode:getValue(dependencyGraph)
         
         -- TODO WESD handle loop resolution generically
         -- special case recursive recipes, just don't consider them
-        if self.nodeName == "coal-liquefaction" or self.nodeName == "kovarex-enrichment-process" then
+        if self.nodeName == "coal-liquefaction" or self.nodeName == "kovarex-enrichment-process" or self.nodeName == "nuclear-fuel-reprocessing" then
             self.computedValue = 9999
             return self.computedValue
         end
