@@ -122,9 +122,13 @@ end
 -- 500  30000
 function roundNice(x)
     x = math.floor(x)
-    if x < 30 then
+    if x < 20 then
         -- step of 1
         return x
+    end
+    if x < 30 then
+        -- step of 2
+        return math.floor(x * 2) / 2
     end
 
     local log10 = math.floor(math.log10(x))
