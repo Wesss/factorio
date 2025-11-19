@@ -12,7 +12,7 @@ local Markets = require("src.control.markets")
 local DependencyGraph = require("src.control.graph.dependency-graph")
 
 -- main loop
-script.on_nth_tick(60, function(event)
+script.on_nth_tick(30, function(event)
     -- TESTING
     -- TestRunner.run()
 

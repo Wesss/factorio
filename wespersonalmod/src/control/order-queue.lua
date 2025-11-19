@@ -12,13 +12,14 @@ local MarketValue = require("src.control.market-value")
 local OrderQueue = {}
 OrderQueue.__index = OrderQueue
 
+local curVersion = 2
+
 function OrderQueue:new()
     local instance = {}
     setmetatable(instance, OrderQueue)
+    instance.version = curVersion
 
-    instance.storageState = {}
-    instance.currentOrder = nil
-    -- TODO WESD add a concept of the next order/upcoming queue to preview to players.
+    instance.orders = {}
 
     -- used to scale order counts
     instance.ordersCreated = 0
@@ -28,10 +29,22 @@ end
 
 -- Returns the current order to fill. If fulfilled or missing, handles setting new active order.
 function OrderQueue:getCurrentOrder(dependencyGraph)
-    if self.currentOrder == nil or self.currentOrder:isFulfilled() then
-        self.currentOrder = self:_createNextOrder(dependencyGraph)
+    -- TODO WESD delete? this is to migrate old queues
+    if self.version ~= curVersion then
+        self.orders = {}
+        self.version = curVersion
     end
-    return self.currentOrder
+
+    if #self.orders == 0 or self.orders[1]:isFulfilled() then
+        table.remove(self.orders, 1)
+    end
+
+    while #self.orders < 3 do
+        local nextOrder = self:_createNextOrder(dependencyGraph)
+        table.insert(self.orders, nextOrder)
+    end
+
+    return self.orders[1]
 end
 
 -- generates the next order to fulfill
@@ -45,6 +58,22 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     end
     local itemsReachable = storage["OrderQueue.itemsReachable"]
 
+    -- calculate order size
+    -- TODO WESD v2 take into account science multiplier
+    -- make first order be the cost of a single lab
+    local orderValMaxBase = MarketValue.GetValue("lab", dependencyGraph)
+    -- order, scaling
+    -- 0, 1
+    -- 50, 2
+    -- 100, 5
+    -- 150, 10
+    -- 200, 17
+    local scalingFactor = 1 / 50
+    local orderCountScaling = 1 + ((self.ordersCreated * scalingFactor) ^ 2)
+    local orderValMax = orderValMaxBase * (1 + orderCountScaling)
+    log("TODO WESD _createNextOrder-valmax orderNum=" .. self.ordersCreated .. " scalingval=" .. orderCountScaling .. " orderValMax=" .. orderValMax)
+
+    -- select item
     local selectedItem = nil
     if (self.ordersCreated == 0) then
         -- have first order be a lab
@@ -52,30 +81,26 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     else
         -- pick a random item
         local itemArray = {}
-        for i, _ in pairs(itemsReachable) do
-            table.insert(itemArray, i)
+        for item, _ in pairs(itemsReachable) do
+            -- don't pick items that are more expensive than order maximum
+            local val = MarketValue.GetValue(item, dependencyGraph)
+            if (val < orderValMax) then
+                table.insert(itemArray, item)
+            end
         end
         local idx = math.random(1, #itemArray)
         selectedItem = itemArray[idx]
     end
-
-    -- calculate order size
-    -- TODO WESD v2 take into account science multiplier
-    -- make first order be the cost of a single lab
-    local orderValMaxBase = MarketValue.GetValue("lab", dependencyGraph)
-    -- 1 / 50 means it takes 50 orders for order size to first double
-    local scalingFactor = 1 / 50
-    local orderValMax = orderValMaxBase * (1 + ((self.ordersCreated * scalingFactor) ^ 1.5))
     local itemValue = MarketValue.GetValue(selectedItem, dependencyGraph)
     
-    local selectedCnt = orderValMax / itemValue
+    local initCnt = orderValMax / itemValue
     -- avoid huge counts of cheaper items.
-    selectedCnt = logScale(selectedCnt)
-    -- TODO WESD v2 snap this to a 'nice' number
-    selectedCnt = math.floor(selectedCnt)
-    log("TODO WESD ordersize 1 item=" .. selectedItem .. " orderNum=" .. self.ordersCreated .. " scalingval=" .. (1 + ((self.ordersCreated * scalingFactor) ^ 1.5)) .. " orderValMax=" .. orderValMax .. " initCnt=" .. (orderValMax / itemValue) .. " selectedCnt=" .. selectedCnt)
+    local logScaled = logScale(initCnt)
+    -- snap to a nice number
+    local roundedCnt = roundNice(logScaled)
+    log("TODO WESD _createNextOrder-roundedCnt item=" .. selectedItem .. " itemValue=" .. itemValue .. " initCnt=" .. initCnt .. " logScaled=" .. logScaled .. " roundedCnt=" .. roundedCnt)
 
-    local lineItem = LineItem:new(selectedItem, selectedCnt)
+    local lineItem = LineItem:new(selectedItem, roundedCnt)
     table.insert(newOrder.lineItems, lineItem)
 
     self.ordersCreated = self.ordersCreated + 1
@@ -83,15 +108,49 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     return newOrder
 end
 
--- todo wesd doc/integrate this
+-- rounds to a 'nice' number, relative to scale of the number.
+-- step in
+-- 1    1
+-- 1    3
+-- 1    10
+-- 5    30
+-- 10   100
+-- 25   300
+-- 50   1000
+-- 100  3000
+-- 250  10000
+-- 500  30000
+function roundNice(x)
+    x = math.floor(x)
+    if x < 30 then
+        -- step of 1
+        return x
+    end
+
+    local log10 = math.floor(math.log10(x))
+    local leftDigit = tonumber(tostring(x):sub(1, 1))
+    local at3 = 0
+    if leftDigit >= 3 then
+        at3 = 1
+    end
+
+    local scale = (log10 * 2) - 4 + at3
+    local vals = {10, 25, 50}
+    local base = vals[(scale % 3) + 1]
+    local exp = math.floor(scale / 3)
+    local step = base * (10 ^ exp)
+
+    return math.floor(x / step) * step
+end
+
+ -- todo wesd doc/integrate this
 local LOG_BASE = math.log(1.01)
 -- https://www.desmos.com/calculator/mjlgsmwpaf
--- linear to 100, then a really slow logarithmic growth
+-- linear to 100, then a very stretched out logarithmic growth
 function logScale(x)
     if x < 100 then return x end
     local argument = x + 13
 
-    -- Apply the change of base formula and subtract 375
     local result = (math.log(argument) / LOG_BASE) - 375
     
     return result
@@ -104,6 +163,7 @@ end
 
 -- check for any additional reachable items. if newResearch is present, check all new products as well.
 function OrderQueue._checkReachable(dependencyGraph, newResearch)
+    -- TODO WESD v2 slowly introduce new recipes in order of complexity/dependency
     local itemsToCheck = storage["OrderQueue.itemsToCheck"]
     if itemsToCheck == nil then
         itemsToCheck = OrderQueue._initItemsToCheck()

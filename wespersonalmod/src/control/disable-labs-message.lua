@@ -8,5 +8,10 @@ script.on_event(defines.events.on_gui_opened, function(event)
     end
 end)
 
- -- TODO WESD v2 also print message when a lab is placed
- 
+ -- When player places a lab down, print message when a lab is placed
+script.on_event(defines.events.on_built_entity, function(event)
+    local entity = event.created_entity
+    if entity and entity.name == "lab" then
+        game.get_player(event.player_index).print({"science-restriction"}, {r = 1})
+    end
+end)
