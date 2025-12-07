@@ -1,4 +1,6 @@
 
+local Inspect = require("src.util.inspect")
+
 local ordersGUI = {}
 
 local curVersion = 2
@@ -11,7 +13,9 @@ function ordersGUI.updateOrdersGUI(orderQueue)
         local main_frame = player.gui.left.orders_main_frame
 
         if prevVersion ~= curVersion then
-            main_frame.destroy()
+            if (main_frame ~= nil) then
+                main_frame.destroy()
+            end 
             main_frame = nil
         end
 
@@ -61,14 +65,16 @@ function ordersGUI.updateOrdersGUI(orderQueue)
                 }
                 sprite.style.right_margin = 5
                 
+                -- item's display name (localized name) instead of internal name
+                local localisedName = prototypes.item[lineItem.itemName].localised_name
                 line.add {
                     type = "label",
-                    caption = lineItem.itemName .. ": "
+                    caption = localisedName
                 }
                 
                 local amount_label = line.add {
                     type = "label",
-                    caption = lineItem.fulfilled .. "/" .. lineItem.amount
+                    caption = "--  " .. lineItem.fulfilled .. "/" .. lineItem.amount
                 }
             end
         end

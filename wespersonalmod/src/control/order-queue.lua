@@ -57,6 +57,16 @@ function OrderQueue:_createNextOrder(dependencyGraph)
         OrderQueue._checkReachable(dependencyGraph, nil)
     end
     local itemsReachable = storage["OrderQueue.itemsReachable"]
+    local orderHistory = storage["OrderQueue.orderHistory"]
+    if orderHistory == nil then
+        orderHistory = {}
+    end
+
+    -- conver to set for faster lookups
+    local orderHistorySet = {}
+    for _, val in ipairs(orderHistory) do
+        orderHistorySet[val] = true
+    end
 
     -- calculate order size
     -- TODO WESD v2 take into account science multiplier
@@ -70,7 +80,7 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     -- 200, 17
     local scalingFactor = 1 / 50
     local orderCountScaling = 1 + ((self.ordersCreated * scalingFactor) ^ 2)
-    local orderValMax = orderValMaxBase * (1 + orderCountScaling)
+    local orderValMax = orderValMaxBase * orderCountScaling
     log("TODO WESD _createNextOrder-valmax orderNum=" .. self.ordersCreated .. " scalingval=" .. orderCountScaling .. " orderValMax=" .. orderValMax)
 
     -- select item
@@ -83,8 +93,10 @@ function OrderQueue:_createNextOrder(dependencyGraph)
         local itemArray = {}
         for item, _ in pairs(itemsReachable) do
             -- don't pick items that are more expensive than order maximum
-            local val = MarketValue.GetValue(item, dependencyGraph)
-            if (val < orderValMax) then
+            local lessThanVal = MarketValue.GetValue(item, dependencyGraph) < orderValMax
+            -- don't re-pick any of the recently chosen items
+            local chosenRecently = orderHistorySet[item]
+            if (lessThanVal and not chosenRecently) then
                 table.insert(itemArray, item)
             end
         end
@@ -100,16 +112,32 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     local roundedCnt = roundNice(logScaled)
     log("TODO WESD _createNextOrder-roundedCnt item=" .. selectedItem .. " itemValue=" .. itemValue .. " initCnt=" .. initCnt .. " logScaled=" .. logScaled .. " roundedCnt=" .. roundedCnt)
 
+    -- create line item
     local lineItem = LineItem:new(selectedItem, roundedCnt)
     table.insert(newOrder.lineItems, lineItem)
 
+    -- play a sound
+    game.play_sound({path = "utility/crafting_finished"})
+
+    -- update order history
+    table.insert(orderHistory, selectedItem)
+    -- we define an item as recently chosen if it was picked within the last 1/2 set of available items
+    local reachableCnt = 0
+    for _ in pairs(itemsReachable) do
+        reachableCnt = reachableCnt + 1
+    end
+    if #orderHistory > (reachableCnt / 2) then
+        table.remove(orderHistory, 1)
+    end
+
+    -- update state
+    storage["OrderQueue.orderHistory"] = orderHistory
     self.ordersCreated = self.ordersCreated + 1
-    -- TODO WESD v2 play a sound
     return newOrder
 end
 
 -- rounds to a 'nice' number, relative to scale of the number.
--- step in
+-- step count
 -- 1    1
 -- 1    3
 -- 1    10
