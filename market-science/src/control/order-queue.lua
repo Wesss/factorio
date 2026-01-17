@@ -81,8 +81,7 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     local scalingFactor = 1 / 50
     local orderCountScaling = 1 + ((self.ordersCreated * scalingFactor) ^ 2)
     local orderValMax = orderValMaxBase * orderCountScaling
-    log("TODO WESD _createNextOrder-valmax orderNum=" .. self.ordersCreated .. " scalingval=" .. orderCountScaling .. " orderValMax=" .. orderValMax)
-
+ 
     -- select item
     local selectedItem = nil
     if (self.ordersCreated == 0) then
@@ -110,7 +109,6 @@ function OrderQueue:_createNextOrder(dependencyGraph)
     local logScaled = logScale(initCnt)
     -- snap to a nice number
     local roundedCnt = roundNice(logScaled)
-    log("TODO WESD _createNextOrder-roundedCnt item=" .. selectedItem .. " itemValue=" .. itemValue .. " initCnt=" .. initCnt .. " logScaled=" .. logScaled .. " roundedCnt=" .. roundedCnt)
 
     -- create line item
     local lineItem = LineItem:new(selectedItem, roundedCnt)
@@ -175,7 +173,7 @@ function roundNice(x)
     return math.floor(x / step) * step
 end
 
- -- todo wesd doc/integrate this
+ -- TODO WESD doc/integrate this
 local LOG_BASE = math.log(1.01)
 -- https://www.desmos.com/calculator/mjlgsmwpaf
 -- linear to 100, then a very stretched out logarithmic growth
@@ -239,7 +237,6 @@ function OrderQueue._checkReachable(dependencyGraph, newResearch)
     end
 
     -- save state
-    log("TODO WESD OrderQueue._checkReachable newResearch=" .. (newResearch or {name=""}).name .. " checkstate=" .. Inspect.inspect({itemsToCheck = itemsToCheck, itemsReachable = itemsReachable}))
     storage["OrderQueue.itemsToCheck"] = itemsToCheck
     storage["OrderQueue.itemsReachable"] = itemsReachable
 end

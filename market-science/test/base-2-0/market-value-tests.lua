@@ -54,7 +54,7 @@ function Tests.marketValueUraniumOre()
     return {success = true}
 end
 
- -- TODO WESD LAST bug, unsure of issue atm
+ -- TODO WESD bug, unsure of issue atm
 function Tests.marketValueUranium238()
     local dependencyGraph = DependencyGraph.new()
 

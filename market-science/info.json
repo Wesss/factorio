@@ -1,0 +1,11 @@
+{
+  "name": "market-science",
+  "version": "0.0.5",
+  "title": "Market Science",
+  "author": "Wesssss",
+  "factorio_version": "2.0",
+  "dependencies": [
+    "base >= 2.0"
+  ],
+  "description": "Replaces science research with market fulfilment. Deliver orders to the market to progress research!"
+}
