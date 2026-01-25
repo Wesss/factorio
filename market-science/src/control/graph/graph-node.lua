@@ -36,34 +36,27 @@ function GraphNodeGroup.new(type)
 end
 
 function GraphNodeGroup:checkReachable(dependencyGraph)
-    log("TODO WESD GraphNodeGroup:checkReachable START debugid=" .. self.debugID .. " group=" .. Inspect.inspect(self))
     local groupingType = self.groupingType
     if groupingType == GraphNodeGroup.Types.NONE then
-        log("TODO WESD GraphNodeGroup:checkReachable END none case debugid=" .. self.debugID .. " res=true")
         return true
     elseif groupingType == GraphNodeGroup.Types.AND then
         for _, dependency in ipairs(self.groupDependencies) do
             if not dependency:checkReachable(dependencyGraph) then
-                log("TODO WESD GraphNodeGroup:checkReachable END and case debugid=" .. self.debugID .. " res=false")
                 return false
             end
         end
-        log("TODO WESD GraphNodeGroup:checkReachable END and case debugid=" .. self.debugID .. " res=true")
         return true
     elseif groupingType == GraphNodeGroup.Types.OR then
         for _, dependency in ipairs(self.groupDependencies) do
             if dependency:checkReachable(dependencyGraph) then
-                log("TODO WESD GraphNodeGroup:checkReachable END or case debugid=" .. self.debugID .. " res=true")
                 return true
             end
         end
-        log("TODO WESD GraphNodeGroup:checkReachable END or case debugid=" .. self.debugID .. " res=false")
         return false
     elseif groupingType == GraphNodeGroup.Types.LEAF then
         local graphNode = dependencyGraph:getNode(self.leafNodeType, self.leafNodeName)
         -- return graphNode:checkReachable(dependencyGraph)
         local res = graphNode:checkReachable(dependencyGraph)
-        log("TODO WESD GraphNodeGroup:checkReachable END leaf case debugid=" .. self.debugID .. " res=" .. tostring(res))
         return res
     else
         error("MarketSience - ERROR GraphNodeGroup:checkReachable unknown groupingType=" .. groupingType)
@@ -141,8 +134,6 @@ function GraphNode:checkReachable(dependencyGraph)
     if self.foundReachable then
         return true
     end
-    -- TODO WESD debugging
-    log("TODO WESD GraphNode:checkReachable START type=" .. self.nodeType .. " name=" .. self.nodeName)
 
     local res = nil
     local nodeType = self.nodeType
@@ -181,8 +172,6 @@ function GraphNode:checkReachable(dependencyGraph)
     end
 
     if res ~= nil then
-        -- TODO WESD debugging
-        log("TODO WESD GraphNode:checkReachable END (no deps) type=" .. self.nodeType .. " name=" .. self.nodeName .. " res=" .. tostring(res))
         self.foundReachable = res
         return res
     end
@@ -190,7 +179,6 @@ function GraphNode:checkReachable(dependencyGraph)
     -- check dependencies
     local res = self.dependencies:checkReachable(dependencyGraph)
     self.foundReachable = res
-    log("TODO WESD GraphNode:checkReachable END type=" .. self.nodeType .. " name=" .. self.nodeName .. " res=" .. tostring(res))
     return res
 end
 
@@ -199,7 +187,6 @@ function GraphNode:getValue(dependencyGraph)
     if self.computedValue ~= nil then
         return self.computedValue
     end
-    log("TODO WESD flag GraphNode:getValue START type=" .. self.nodeType .. " name=" .. self.nodeName)
 
     local nodeVal = 0
     local nodeType = self.nodeType
@@ -210,7 +197,6 @@ function GraphNode:getValue(dependencyGraph)
     elseif (nodeType == GraphNode.Types.RECIPE) then
         -- add value equal to crafting time
         local recipe = prototypes.recipe[self.nodeName]
-        log("TODO WESD flag GraphNode:getValue recipe value check energy=" .. recipe.energy)
         nodeVal = recipe.energy * (1.0 / 5.0)
         
         -- TODO WESD handle loop resolution generically
@@ -235,7 +221,6 @@ function GraphNode:getValue(dependencyGraph)
     local depValue = self.dependencies:getValue(dependencyGraph)
     local res = depValue + nodeVal
     self.computedValue = res
-    log("TODO WESD flag GraphNode:getValue END type=" .. self.nodeType .. " name=" .. self.nodeName .. " value=" .. res)
     return res
 end
 
