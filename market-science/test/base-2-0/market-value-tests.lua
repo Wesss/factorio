@@ -25,8 +25,8 @@ function Tests.marketValueHeavyOil()
     local dependencyGraph = DependencyGraph.new()
 
     -- testing
-    dependencyGraph:getNode(GraphNode.Types.ITEM, "heavy-oil-barrel")
-    log(Inspect.inspect(dependencyGraph))
+    --dependencyGraph:getNode(GraphNode.Types.ITEM, "heavy-oil-barrel")
+    --log(Inspect.inspect(dependencyGraph))
 
     local actual = MarketValue.GetValue("heavy-oil-barrel", dependencyGraph)
 
@@ -59,8 +59,8 @@ function Tests.marketValueUranium238()
     local dependencyGraph = DependencyGraph.new()
 
     -- testing
-    dependencyGraph:getNode(GraphNode.Types.ITEM, "uranium-238")
-    log(Inspect.inspect(dependencyGraph))
+    --dependencyGraph:getNode(GraphNode.Types.ITEM, "uranium-238")
+    --log(Inspect.inspect(dependencyGraph))
 
     local actual = MarketValue.GetValue("uranium-238", dependencyGraph)
 
